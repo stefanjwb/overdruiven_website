@@ -41,14 +41,21 @@ Deze Flask-webapplicatie maakt het mogelijk om:
 
 4. Voeg een `.env` bestand toe met je configuratie:
    ```ini
-   SECRET_KEY=je_geheime_key
-   BANK_ACCOUNT_NUMBER=NLxxBANKxxxxxxx
-   BANK_ACCOUNT_NAME=Wijnclub Utrecht
+   SECRET_KEY=
+   GOOGLE_CALENDAR_ID=
+
+   BANK_ACCOUNT_NUMBER=
+   BANK_ACCOUNT_NAME=
+
+   MAIL_PASSWORD=
+   MAIL_USERNAME=
+
+   ADMIN_EMAIL=
    ```
 
 5. Start de app:
    ```bash
-   flask run
+   phyton3 app.py
    ```
 
 ---
