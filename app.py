@@ -186,6 +186,12 @@ def public_home():
     # Verwijst naar een nieuwe template die je hebt gemaakt (of nog moet maken)
     return render_template('public_home.html', activities=public_activities)
 
+@app.route('/agenda')
+@login_required
+def agenda():
+    return render_template('agenda.html')
+
+
 @app.route('/activiteiten')
 @login_required
 def activiteiten():

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Activiteitenkalender{% endblock %}
+
+{% block content %}
+    {# De inhoud van je pagina komt binnen dit 'content' blok #}
+    <div class="activiteiten-container">
+        <h1>Activiteitenkalender</h1>
+        <p>Bekijk hier alle aankomende activiteiten van Château Overdruiven. Deze agenda wordt automatisch bijgewerkt.</p>
+
+        <iframe src="https://calendar.google.com/calendar/embed?src=chateau.overdruiven%40gmail.com&ctz=Europe%2FAmsterdam" allowfullscreen></iframe>
+
+        <hr>
+
+        <h2>Voeg toe aan je eigen agenda</h2>
+
+        <h3>🔗 Google Agenda (laptop)</h3>
+        <ol>
+          <li>Open <a href="https://calendar.google.com" target="_blank">Google Agenda</a>.</li>
+          <li>Klik op het <strong>tandwielicoon</strong> en kies <strong>Instellingen</strong>.</li>
+          <li>Ga naar <strong>Agenda toevoegen</strong> > <strong>Via URL</strong>.</li>
+          <li>Plak:<br>
+            <code>https://calendar.google.com/calendar/ical/chateau.overdruiven%40gmail.com/public/basic.ics</code>
+          </li>
+          <li>Klik op <strong>Agenda toevoegen</strong>.</li>
+        </ol>
+
+        <h3>Apple Agenda (Mac)</h3>
+        <ol>
+          <li>Open de <strong>Agenda-app</strong> op je Mac.</li>
+          <li>Kies <strong>Archief</strong> > <strong>Nieuwe agenda-abonnement...</strong>.</li>
+          <li>Plak:<br>
+            <code>https://calendar.google.com/calendar/ical/chateau.overdruiven%40gmail.com/public/basic.ics</code>
+          </li>
+          <li>Klik op <strong>Abonneer</strong>.</li>
+        </ol>
+
+        <h3>Apple Agenda (iPhone)</h3>
+        <ol>
+          <li>Ga naar <strong>Instellingen</strong> > <strong>Agenda</strong> > <strong>Accounts</strong>.</li>
+          <li>Kies <strong>Voeg account toe</strong> > <strong>Andere</strong> > <strong>Voeg agenda-abonnement toe</strong>.</li>
+          <li>Plak:<br>
+            <code>https://calendar.google.com/calendar/ical/chateau.overdruiven%40gmail.com/public/basic.ics</code>
+          </li>
+          <li>Tik op <strong>Volgende</strong> en dan <strong>Bewaar</strong>.</li>
+        </ol>
+    </div>
+{% endblock %}

@@ -756,3 +756,63 @@ textarea {
     display: inline-block; 
     margin: 0; 
 }
+
+/* ================================================================
+    5. STIJLEN VOOR DE AGENDA PAGINA
+================================================================ */
+
+/* De hoofdcontainer voor de pagina, vergelijkbaar met .activity-detail-card */
+.activiteiten-container {
+    background-color: var(--clr-white);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px var(--clr-shadow);
+    padding: 40px;
+    margin-top: 30px;
+    max-width: 900px; /* Iets breder voor de agenda */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* De ingesloten Google Agenda responsive maken */
+.activiteiten-container iframe {
+    width: 100%;
+    height: 600px;
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius);
+}
+
+/* Titels en lijsten voor de instructies */
+.activiteiten-container h2 {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.activiteiten-container h3 {
+    margin-top: 30px;
+    border-bottom: 2px solid var(--clr-bg-subtle);
+    padding-bottom: 10px;
+}
+
+.activiteiten-container ol {
+    padding-left: 20px; /* Standaard browser-inspringing resetten */
+    margin-top: 15px;
+}
+
+.activiteiten-container li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: var(--clr-text-subtle);
+}
+
+/* De code-blokken met de ICS-link stylen */
+.activiteiten-container code {
+    display: block;
+    background: #e9ecef;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-top: 5px;
+    font-family: monospace;
+    color: var(--clr-primary);
+    font-weight: bold;
+    word-break: break-all; /* Zorgt dat lange links afbreken */
+}

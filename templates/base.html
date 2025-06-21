@@ -34,6 +34,7 @@
                             <span class="dropdown-btn nav-item">Activiteiten &#9660;</span>
                             <div class="dropdown-content">
                                 <a href="{{ url_for('activiteiten') }}">Overzicht</a>
+                                <a href="{{ url_for('agenda') }}">Agenda</a>
                                 {% if is_organizer() %}
                                 <a href="{{ url_for('add_activity') }}">Nieuwe Activiteit Toevoegen</a>
                                 {% endif %}
