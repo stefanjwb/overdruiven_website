@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <div class="login-container"> {# Nieuwe container voor het login formulier #}
+        <h1>Login</h1>
+        <form method="POST" class="login-form"> {# Class toegevoegd aan het formulier #}
+            <div class="form-group"> {# Groep voor label en input #}
+                <label for="username">Gebruikersnaam:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group"> {# Groep voor label en input #}
+                <label for="password">Wachtwoord:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-submit-btn">Log In</button> {# Knop i.p.v. input type="submit" #}
+        </form>
+
+        <p class="login-prompt">Heb je nog geen account? <a href="{{ url_for('register') }}">Registreer je dan hier</a></p>
+        
+    </div>
+{% endblock %}

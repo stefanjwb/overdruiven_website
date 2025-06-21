@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Activiteit Toevoegen{% endblock %}
+
+{% block content %}
+    <div class="activity-form-container">
+        <h1>Nieuwe Activiteit Toevoegen</h1>
+        <form method="POST" class="activity-form">
+            <div class="form-group">
+                <label for="name">Naam Activiteit:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Beschrijving:</label>
+                <textarea id="description" name="description" rows="5"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Datum:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="start_time">Begintijd (optioneel):</label>
+                <input type="time" id="start_time" name="start_time">
+            </div>
+            
+            <div class="form-group">
+                <label for="end_time">Eindtijd (optioneel):</label>
+                <input type="time" id="end_time" name="end_time">
+            </div>
+
+            <div class="form-group">
+                <label for="max_participants">Max. aantal deelnemers (leeg laten voor geen limiet):</label>
+                <input type="number" id="max_participants" name="max_participants" min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="cost">Kosten p.p. (leeg laten voor gratis)</label>
+                <input type="number" id="cost" name="cost" min="0" step="0.01" class="form-control" placeholder="bv. 15.50">
+            </div>
+
+            <div class="form-group">
+                <label for="location">Locatie:</label>
+                <input type="text" id="location" name="location">
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="is_public" name="is_public" value="true" style="width: auto;">
+                <label for="is_public" style="margin-bottom: 0;">Deze activiteit is openbaar zichtbaar op de homepagina</label>
+            </div>
+            <button type="submit" class="submit-btn">Activiteit Toevoegen</button>
+        </form>
+    </div>
+{% endblock %}

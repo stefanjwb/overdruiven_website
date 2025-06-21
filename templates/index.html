@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Alle activiteiten{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Geplande Activiteiten</h1>
+
+    {% if activities %}
+        <div class="activity-grid">
+            {% for activity in activities %}
+                <div class="activity-card">
+                    <div class="activity-card-content">
+                        
+                        <h3 class="activity-card-title">
+                            <a href="{{ url_for('view_activity', activity_id=activity.id) }}">{{ activity.name }}</a>
+                        </h3>
+
+                        <div class="activity-card-body">
+                            
+                            <div class="activity-meta">
+                                <div class="meta-item">
+                                    <span class="icon" title="Datum">&#128197;</span>
+                                    <div>
+                                        <strong>Datum</strong>
+                                        <p>{{ activity.date.strftime('%d-%m-%Y') }}</p>
+                                    </div>
+                                </div>
+                                
+                                {% if activity.start_time %}
+                                <div class="meta-item">
+                                    <span class="icon" title="Tijd">&#9200;</span>
+                                    <div>
+                                        <strong>Tijd</strong>
+                                        <p>{{ activity.start_time }}{% if activity.end_time %} - {{ activity.end_time }}{% endif %}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if activity.cost and activity.cost > 0 %}
+                                <div class="meta-item">
+                                    <span class="icon" title="Kosten">&#128182;</span>
+                                    <div>
+                                        <strong>Kosten</strong>
+                                        <p>€{{ "%.2f"|format(activity.cost) }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="activity-description">
+                                <h4>Beschrijving</h4>
+                                {% if activity.description %}
+                                    <p>{{ activity.description }}</p>
+                                {% else %}
+                                    <p>Geen beschrijving beschikbaar.</p>
+                                {% endif %}
+
+                                {% if activity.payment_details %}
+                                <ul class="payment-details">
+                                    {% for line in activity.payment_details.split('\n') %}
+                                        <li>{{ line }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    <div class="activity-card-footer">
+                        <a href="{{ url_for('view_activity', activity_id=activity.id) }}" class="submit-btn" style="width: auto; display: inline-block; text-decoration: none;">
+                            Bekijk Details 
+                            {% if activity.max_participants is not none %}
+                                ({{ activity.signups_count }}/{{ activity.max_participants }})
+                            {% else %}
+                                ({{ activity.signups_count }})
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="container">
+            <p class="no-activities" style="text-align: center;">Er zijn nog geen activiteiten gepland. Voeg er een toe!</p>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Welkom bij de Wijnclub{% endblock %}
+
+{% block content %}
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; background-color: var(--clr-bg-subtle);">
+        <h1 style="font-size: 3rem; color: var(--clr-primary);">Welkom bij Onze Wijnclub</h1>
+        <p style="font-size: 1.2rem; max-width: 700px; margin: 20px auto;">De plek waar passie voor wijn, gezelligheid en vriendschap samenkomen.</p>
+    </div>
+
+    <div class="container">
+        <hr class="section-divider">
+        
+        <div class="about-section">
+            <h2>Over Onze Club</h2>
+            <p>Welkom op de website waar al onze groepsactiviteiten worden bijgehouden! Deze site is gemaakt om het voor iedereen makkelijk te maken om de nieuwste plannen te bekijken en zich direct aan te melden. We hopen dat jullie er veel plezier van zullen hebben!</p>
+        </div>
+
+        <hr class="section-divider">
+
+        {% if not session.logged_in %}
+        <div id="word-lid" style="text-align: center; padding: 40px 20px;">
+            <h2>Interesse om Lid te Worden?</h2>
+            <p style="max-width: 600px; margin: 20px auto;">Onze wijnclub brengt liefhebbers samen voor unieke proeverijen en gezellige evenementen. Lijkt dit je wat? Dien dan een aanvraag in en wie weet proosten we binnenkort samen!</p>
+            <button id="openContactModalBtn" class="submit-btn" style="width: auto; margin-top: 10px;">Dien een Aanvraag in</button>
+        </div>
+        
+        <hr class="section-divider">
+        {% endif %}
+
+        {% if activities %}
+            <h2 style="text-align: center; margin-bottom: 40px;">Komende Openbare Activiteiten</h2>
+            <div class="activity-grid">
+                {% for activity in activities %}
+                <div class="activity-card">
+                    <div class="activity-card-content">
+                        <h3 class="activity-card-title">
+                            <a href="{{ url_for('view_activity', activity_id=activity.id) }}">{{ activity.name }}</a>
+                        </h3>
+                        <div class="activity-card-body">
+                            <div class="activity-meta">
+                                <div class="meta-item">
+                                    <span class="icon" title="Datum">&#128197;</span>
+                                    <div>
+                                        <strong>Datum</strong>
+                                        <p>{{ activity.date.strftime('%d-%m-%Y') }}</p>
+                                    </div>
+                                </div>
+                                {% if activity.start_time %}
+                                <div class="meta-item">
+                                    <span class="icon" title="Tijd">&#9200;</span>
+                                    <div>
+                                        <strong>Tijd</strong>
+                                        <p>{{ activity.start_time }}{% if activity.end_time %} - {{ activity.end_time }}{% endif %}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="activity-description">
+                                <h4>Beschrijving</h4>
+                                <p>{{ activity.description or 'Geen beschrijving beschikbaar.' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-card-footer footer-transparent">
+                        {% if session.logged_in %}
+                            <a href="{{ url_for('view_activity', activity_id=activity.id) }}" class="submit-btn" style="width: auto; display: inline-block; text-decoration: none;">
+                                Bekijk Details & Aanmelden
+                            </a>
+                        {% else %}
+                            <p style="margin: 0; font-size: 0.9rem;">Log in of registreer om je aan te melden!</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-activities" style="text-align: center;">Er zijn momenteel geen openbare activiteiten gepland.</p>
+        {% endif %}
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeContactModalBtn">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 20px;">Lidmaatschap Aanvragen</h2>
+            <form action="{{ url_for('contact') }}" method="POST">
+                <div class="form-group">
+                    <label for="name">Naam</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mailadres</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Vertel kort iets over jezelf (optioneel)</label>
+                    <textarea id="message" name="message" rows="4"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Verstuur Aanvraag</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const contactModal = document.getElementById("contactModal");
+    const openBtn = document.getElementById("openContactModalBtn");
+    const closeBtn = document.getElementById("closeContactModalBtn");
+
+    if (openBtn && contactModal) {
+        openBtn.onclick = function() {
+            contactModal.style.display = "block";
+        }
+    }
+
+    if (closeBtn && contactModal) {
+        closeBtn.onclick = function() {
+            contactModal.style.display = "none";
+        }
+    }
+
+    window.onclick = function(event) {
+        if (event.target == contactModal) {
+            contactModal.style.display = "none";
+        }
+    }
+});
+</script>
+{% endblock %}

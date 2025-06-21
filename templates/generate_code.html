@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Genereer Uitnodigingscode{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h1 class="page-title">Nieuwe Uitnodigingscode Genereren</h1>
+        <form method="POST" class="activity-form"> 
+            
+            <div class="form-group">
+                <label for="role">Selecteer een rol voor deze code:</label>
+                <select name="role" id="role" class="form-control" style="padding: 14px; width: 100%; border-radius: 8px; border: 1px solid var(--clr-border);">
+                    <option value="user">Standaard Gebruiker</option>
+                    <option value="organizer">Organisator (mag activiteiten aanmaken)</option>
+                </select>
+            </div>
+            <p>Klik op de knop om een unieke uitnodigingscode aan te maken met de geselecteerde rol.</p>
+            <button type="submit" class="submit-btn">Code Genereren</button>
+        </form>
+        <p class="back-link-container"><a href="{{ url_for('admin_invite_codes') }}" class="back-link">&larr; Terug naar Uitnodigingscodes</a></p>
+    </div>
+{% endblock %}

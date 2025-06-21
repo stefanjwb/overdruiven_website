@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ activity.name }}{% endblock %}
+
+{% block content %}
+<div class="activity-detail-card">
+    <h1 class="activity-detail-title">{{ activity.name }}</h1>
+
+    <div class="activity-tags-container">
+    
+        <div class="activity-tag">
+            <span class="icon">&#128197;</span>
+            <span>Datum: <strong>{{ activity.date.strftime('%d-%m-%Y') }}</strong></span>
+        </div>
+    
+        {% if activity.start_time %}
+        <div class="activity-tag">
+            <span class="icon">&#9200;</span>
+            <span>Tijd: <strong>{{ activity.start_time }}{% if activity.end_time %} - {{ activity.end_time }}{% endif %}</strong></span>
+        </div>
+        {% endif %}
+    
+        {% if activity.location %}
+        <div class="activity-tag">
+            <span class="icon">&#128205;</span>
+            <span>Locatie: <strong>{{ activity.location }}</strong></span>
+        </div>
+        {% endif %}
+    
+        <div class="activity-tag">
+            <span class="icon">&#128182;</span>
+            {% if activity.cost and activity.cost > 0 %}
+                <span>Kosten: <strong>€{{ "%.2f"|format(activity.cost) }}</strong></span>
+            {% else %}
+                <span>Kosten: <strong>Gratis</strong></span>
+            {% endif %}
+        </div>
+    
+    </div>
+
+    {% if activity.description %}
+        <div class="activity-description">
+            <h2>Beschrijving</h2>
+            <p>{{ activity.description | safe }}</p>
+        </div>
+    {% endif %}
+
+    <hr class="section-divider">
+
+    <div class="signups-section">
+        <h2>Deelnemers
+            {% if activity.max_participants %}
+                ({{ signups|length }} / {{ activity.max_participants }})
+            {% else %}
+                ({{ signups|length }})
+            {% endif %}
+        </h2>
+        
+        {% if signups %}
+            <ul class="signup-list">
+                {% for signup in signups %}
+                <li class="signup-item">
+                    <div class="participant-info">
+                        <span class="icon">&#128100;</span>
+                        <span class="signup-name">{{ signup.participant_name }}</span>
+                    </div>
+                    
+                    {% if is_admin() %}
+                        {% if activity.cost and activity.cost > 0 %}
+                            {% set payment = payments_by_user.get(signup.user.id) %}
+                            <div class="admin-payment-status"> {# This div will now only contain payment-related elements #}
+                                {% if payment and payment.status == 'paid' %}
+                                    <span style="color: green; font-weight: bold;">✓ Betaald</span>
+                                {% elif payment and payment.status == 'pending_verification' %}
+                                    <div class="info-box payment-code copy-container" style="padding: 8px 12px; margin-bottom: 0;">
+                                        <span id="admin-copy-{{ signup.user.id }}">{{ 'ACT{}-{}-{}'.format(activity.id, signup.user.id, activity.date.strftime('%d%m')) }}</span>
+                                        <button class="copy-btn" data-copy-target="#admin-copy-{{ signup.user.id }}">Kopieer</button>
+                                    </div>
+                    
+                                    <div style="display: flex; gap: 10px;">
+                                        <form action="{{ url_for('approve_payment', payment_id=payment.id) }}" method="POST">
+                                            <button type="submit" class="btn-action edit-btn">Goedkeuren</button>
+                                        </form>
+                                        <form action="{{ url_for('reject_payment', payment_id=payment.id) }}" method="POST">
+                                            <button type="submit" class="btn-action delete-btn">Afwijzen</button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <span style="color: #999;">Nog niet betaald</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {# The delete form is now a direct child of .signup-item, allowing flexbox to space it #}
+                        <form action="{{ url_for('delete_signup', signup_id=signup.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je {{ signup.participant_name }} wilt verwijderen van deze activiteit?');" class="inline-form">
+                            <button type="submit" class="btn-action delete-btn">Verwijder</button>
+                        </form>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-signups">Nog geen aanmeldingen.</p>
+        {% endif %}
+
+        <hr class="section-divider">
+        
+        <div class="signup-form-section">
+            {% if session.logged_in %}
+                {% set user_signup = signups | selectattr('participant_name', 'equalto', session.username) | first %}
+
+                {% if user_signup %}
+                    {% if activity.cost and activity.cost > 0 %}
+                        
+                        {% if user_payment and user_payment.status == 'paid' %}
+                            <p class="status-box status-paid">✓ Je betaling is ontvangen!</p>
+                        
+                        {% elif user_payment and user_payment.status == 'pending_verification' %}
+                            <p class="status-box status-pending">Je betaling wordt geverifieerd...</p>
+
+                        {% else %}
+                            <p>Je aanmelding is pas compleet na een succesvolle betaling.</p>
+                            <button id="paymentModalBtn" class="submit-btn">Betaal nu</button>
+                        {% endif %}
+
+                    {% else %}
+                        <p class="status-box status-info">Je bent aangemeld voor deze gratis activiteit.</p>
+                    {% endif %}
+                    {% else %}
+                    {% if not is_admin() %}
+                        {% set is_full = activity.max_participants is not none and signups|length >= activity.max_participants %}
+                        {% if is_full %}
+                            <p class="not-logged-in-message">Deze activiteit is helaas vol.</p>
+                        {% else %}
+                            {% if activity.cost and activity.cost > 0 %}
+                                <button id="paymentModalBtn" class="submit-btn">Aanmelden & Betalen</button>
+                            {% else %}
+                                <form action="{{ url_for('confirm_payment', activity_id=activity.id) }}" method="POST">
+                                    <button type="submit" class="submit-btn">Meld je aan</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <p class="already-signed-up-message">De admin beheert activiteiten en kan zich niet aanmelden.</p>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <p class="not-logged-in-message">Log in om je aan te melden voor deze activiteit.</p>
+                <a href="{{ url_for('login') }}" class="login-prompt-btn">Log hier in</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="activity-actions">
+        {% if is_admin() %}
+        <form action="{{ url_for('delete_activity', activity_id=activity.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je deze activiteit wilt verwijderen? Alle aanmeldingen gaan ook verloren.');" class="delete-activity-form">
+            <button type="submit" class="btn-action delete-btn">Verwijder activiteit</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('activiteiten') }}" class="back-link">&larr; Terug naar overzicht</a>
+    </div>
+</div> {% if activity.cost and activity.cost > 0 %}
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Betalingsinstructies</h2>
+        <p>Om je aanmelding te voltooien, maak je de kosten over en klik je hieronder op "Ik heb betaald".</p>
+        <hr>
+        <p>Maak <strong>€{{ "%.2f"|format(activity.cost) }}</strong> over. Kopieer de gegevens hieronder om fouten te voorkomen.</p>
+        
+        <div class="info-box">
+            <div class="copy-container">
+                <div>
+                    <strong>IBAN:</strong> <span id="iban-text">{{ config.BANK_ACCOUNT_NUMBER }}</span>
+                </div>
+                <button class="copy-btn" data-copy-target="#iban-text">Kopieer</button>
+            </div>
+            <hr style="border-color: #ccc; margin: 10px 0;">
+            <div class="copy-container">
+                <div>
+                    <strong>T.n.v.:</strong> <span id="name-text">{{ config.BANK_ACCOUNT_NAME }}</span>
+                </div>
+                <button class="copy-btn" data-copy-target="#name-text">Kopieer</button>
+            </div>
+        </div>
+
+        <p>Gebruik de volgende korte, unieke omschrijving (zeer belangrijk!):</p>
+
+        <div class="info-box payment-code copy-container">
+            <span id="payment-code-text">{{ 'ACT{}-{}-{}'.format(activity.id, user.id, activity.date.strftime('%d%m')) }}</span>
+            <button class="copy-btn" data-copy-target="#payment-code-text">Kopieer</button>
+        </div>
+        <hr>
+        <form action="{{ url_for('confirm_payment', activity_id=activity.id) }}" method="POST" style="margin-top: 20px;">
+            <button type="submit" class="submit-btn">Ik heb betaald</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Logica voor de Modal ---
+    var modal = document.getElementById("paymentModal");
+    var btn = document.getElementById("paymentModalBtn");
+    var span = document.getElementsByClassName("close-btn")[0];
+
+    if (btn) {
+      btn.onclick = function() {
+        modal.style.display = "block";
+      }
+    }
+    if (span) {
+      span.onclick = function() {
+        modal.style.display = "none";
+      }
+    }
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // --- Logica voor de Kopieer-knoppen ---
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.dataset.copyTarget;
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                const textToCopy = targetElement.innerText;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const originalText = button.innerText;
+                    button.innerText = 'Gekopieerd!';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.innerText = originalText;
+                        button.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Kon tekst niet kopieren: ', err);
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

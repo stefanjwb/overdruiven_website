@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Registreren{% endblock %}
+
+{% block content %}
+    <div class="registration-container"> {# Nieuwe container voor het registratieformulier #}
+        <h1 class="page-title">Registreer een nieuw account</h1>
+        <form method="POST" class="registration-form"> {# Class toegevoegd aan het formulier #}
+            <div class="form-group">
+                <label for="username">Gebruikersnaam:</label>
+                <input type="text" id="username" name="username" value="{{ username or '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mailadres:</label>
+                <input type="email" id="email" name="email" value="{{ email or '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Wachtwoord:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="invite_code">Uitnodigingscode:</label>
+                <input type="text" id="invite_code" name="invite_code" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Account aanmaken</button>
+        </form>
+        <p class="login-prompt">Heb je al een account? <a href="{{ url_for('login') }}">Log hier in</a></p>
+    </div>
+{% endblock %}

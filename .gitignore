@@ -1,0 +1,21 @@
+# Omgevingsvariabelen
+.env
+.env.private
+README_private.md
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtuele omgeving
+venv/
+
+# Database
+*.db
+
+# Flask specifieke folders
+credentials/
+instance/
+
+# Lokale mappen
+path/

@@ -1,0 +1,758 @@
+/* ================================================================
+    STYLE.CSS - DEFINITIEVE VERSIE
+    Auteur: Gemini
+    Huisstijl: #710081 (Paars)
+    Structuur: Component-gebaseerd, Mobile-First
+================================================================ */
+
+/* 1. CONFIGURATIE & GLOBALE STIJLEN
+================================================================ */
+/* 1.1 Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap');
+
+/* 1.2 CSS Variabelen (Root) */
+:root {
+    /* Kleurenpalet */
+    --clr-primary: #710081;
+    --clr-primary-dark: #4d0026;
+    --clr-accent: #D4AF37;
+    --clr-accent-dark: #b8972f;
+    --clr-text: #333333;
+    --clr-text-subtle: #5a5a5a;
+    --clr-bg: #FDFCFB;
+    --clr-bg-subtle: #f8f6f7;
+    --clr-white: #ffffff;
+    --clr-border: #e0e0e0;
+    --clr-success: #28a745;
+    --clr-danger: #dc3545;
+    --clr-shadow: rgba(0, 0, 0, 0.08);
+
+    /* Typografie */
+    --font-family: 'Lato', sans-serif;
+    --fs-base: 16px;
+    
+    /* Layout */
+    --container-width: 1100px;
+    --border-radius: 8px;
+    --transition-speed: 0.2s;
+}
+
+/* 1.3 CSS Reset & Basis Stijlen */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: var(--fs-base);
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.7;
+    background-color: var(--clr-bg);
+    color: var(--clr-text);
+}
+
+/* 1.4 Typografie */
+h1, h2, h3, h4 {
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--clr-primary);
+}
+
+h1, .page-title {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: -1px;
+}
+
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.25rem; }
+
+p { margin-bottom: 1rem; }
+
+a {
+    color: var(--clr-primary);
+    text-decoration: none;
+    transition: color var(--transition-speed) ease;
+}
+
+a:hover {
+    color: var(--clr-primary-dark);
+    text-decoration: underline;
+}
+
+/* 1.5 Layout & Hulpklassen */
+.container {
+    max-width: var(--container-width);
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background: var(--clr-border);
+    margin: 50px 0;
+}
+
+/* ================================================================
+    2. COMPONENTEN
+================================================================ */
+
+/* 2.1 Knoppen (Buttons) */
+.btn, .submit-btn, .button-link, .login-prompt-btn, .login-submit-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 3px 8px var(--clr-shadow);
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    width: 100%; 
+}
+
+.btn:hover, .submit-btn:hover, .button-link:hover, .login-prompt-btn:hover, .login-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+    text-decoration: none;
+}
+
+.submit-btn {
+    background-color: var(--clr-primary);
+    color: var(--clr-white);
+}
+.submit-btn:hover { background-color: var(--clr-primary-dark); color: var(--clr-white); }
+
+.login-submit-btn {
+    background-color: var(--clr-primary);
+    color: var(--clr-white);
+    font-size: 1.1rem;
+}
+.login-submit-btn:hover { 
+    background-color: var(--clr-primary-dark); 
+    color: var(--clr-white); 
+}
+
+/* --- Actieknoppen (klein, in tabellen etc.) --- */
+.btn-action {
+    padding: 6px 14px;
+    font-size: 0.9rem;
+    width: auto;
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    text-decoration: none;
+    color: white;
+}
+
+.edit-btn {
+    background-color: var(--clr-success);
+}
+.edit-btn:hover {
+    background-color: #218838;
+}
+
+.delete-btn {
+    background-color: var(--clr-danger);
+}
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Add this new rule to your style.css, perhaps near .inline-form */
+.delete-btn-spacing {
+    margin-left: 20px; /* Adjust this value as needed for desired spacing */
+}
+
+/* Ensure .inline-form still maintains its necessary properties */
+.inline-form { 
+    display: inline-block; 
+    margin: 0; 
+}
+
+/* --- Kopieer-knop --- */
+.copy-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    background-color: var(--clr-primary);
+    color: var(--clr-white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0; 
+    transition: background-color 0.2s;
+}
+.copy-btn:hover {
+    background-color: var(--clr-primary-dark);
+}
+.copy-btn.copied {
+    background-color: var(--clr-success); 
+}
+
+
+/* 2.2 Formulieren (Forms) */
+.form-container, .login-container, .registration-container, .activity-form-container {
+    max-width: 550px;
+    margin: 50px auto;
+    padding: 40px;
+    background-color: var(--clr-white);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px var(--clr-shadow);
+    border: 1px solid var(--clr-border);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+    color: var(--clr-text-subtle);
+    font-size: 0.95rem;
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="date"], input[type="time"], input[type="number"], textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: var(--font-family);
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="number"]:focus, textarea:focus {
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 3px rgba(113, 0, 129, 0.15); /* Aangepast aan nieuwe paarse kleur */
+    outline: none;
+}
+
+.readonly-input {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.login-prompt, .back-link-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+
+/* 2.3 Navigatiebalk (Navbar) */
+.navbar {
+    background-color: var(--clr-white);
+    padding: 10px 30px; /* Iets minder verticale padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px var(--clr-shadow);
+    border-bottom: 1px solid var(--clr-border);
+    position: relative;
+    z-index: 1001;
+}
+
+.navbar-menu {
+    display: flex;         /* Zorgt voor een horizontale layout */
+    align-items: center;   /* Lijnt de items verticaal in het midden uit */
+    gap: 20px;             /* Ruimte tussen de menu-items */
+}
+
+/* --- Drie-koloms layout voor de navbar --- */
+.navbar-left, .navbar-right {
+    flex: 1; 
+    display: flex;
+    align-items: center;
+}
+.navbar-right {
+    justify-content: flex-end; 
+}
+.navbar-center {
+    flex-shrink: 0;
+}
+
+/* --- Logo styling --- */
+.navbar-logo {
+    width: auto;
+    display: block;
+}
+.logo-desktop {
+    height: clamp(40px, 10vw, 60px);
+}
+.logo-mobile {
+    display: none;
+}
+
+/* --- Navigatie-items & Dropdowns --- */
+.nav-item {
+    color: var(--clr-text);
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 6px;
+    transition: all var(--transition-speed) ease;
+    display: inline-block;
+}
+.nav-item:hover {
+    background-color: var(--clr-bg-subtle);
+    text-decoration: none;
+    color: var(--clr-primary);
+}
+
+.dropdown { 
+    position: relative; 
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--clr-white);
+    min-width: 200px;
+    box-shadow: 0 8px 20px var(--clr-shadow);
+    z-index: 1000;
+    border-radius: var(--border-radius);
+    right: 0;
+    top: 100%;
+    overflow: hidden;
+    border: 1px solid var(--clr-border);
+    padding: 10px 0;
+}
+.dropdown-content a {
+    color: var(--clr-text);
+    padding: 8px 20px;
+    display: block;
+}
+.dropdown-content a:hover {
+    background-color: var(--clr-bg-subtle);
+    color: var(--clr-primary);
+    text-decoration: none;
+}
+.dropdown.is-open .dropdown-content {
+    display: block;
+}
+
+/* --- Mobiele navigatie-knop --- */
+.navbar-toggler {
+    display: none;
+    font-size: 1.8rem;
+    background: transparent;
+    border: none;
+    color: var(--clr-text);
+    cursor: pointer;
+}
+
+
+/* 2.4 Activiteitenkaart (Activity Card) */
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 450px), 1fr));
+    gap: 30px;
+}
+
+.activity-card {
+    background-color: var(--clr-white);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px var(--clr-shadow);
+    border-top: 5px solid var(--clr-primary);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+.activity-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(113, 0, 129, 0.12); /* Aangepast aan paarse kleur */
+}
+
+.activity-card-content { padding: 30px; flex-grow: 1; }
+.activity-card-title { margin-bottom: 20px; }
+.activity-card-title a:hover { text-decoration: none; }
+
+.activity-card-body {
+    display: grid;
+    gap: 30px;
+    align-items: start;
+}
+@media (min-width: 600px) { .activity-card-body { grid-template-columns: 1fr 1.5fr; } }
+
+.activity-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-size: 0.95rem;
+}
+.meta-item { display: flex; align-items: flex-start; gap: 12px; }
+.meta-item .icon { color: var(--clr-primary); font-size: 1.3em; margin-top: 2px; }
+.meta-item p { margin: 0; color: var(--clr-text-subtle); }
+.meta-item strong { color: var(--clr-text); display: block; margin-bottom: 2px; }
+
+.activity-description h4 { margin-bottom: 10px; }
+.activity-description p { font-size: 0.95rem; color: var(--clr-text-subtle); line-height: 1.6; }
+
+.activity-card-footer {
+    margin-top: auto;
+    padding: 20px 30px;
+    border-top: 1px solid var(--clr-border);
+    text-align: right;
+    background-color: var(--clr-bg-subtle);
+    border-radius: 0 0 10px 10px;
+}
+.activity-card-footer.footer-transparent {
+    background-color: transparent;
+    border-top: none; 
+}
+
+
+/* 2.5 Tabellen (Tables) */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.user-table th, .user-table td {
+    border: 1px solid var(--clr-border);
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+.user-table th { background-color: var(--clr-bg-subtle); }
+.user-table tbody tr:hover { background-color: rgba(113, 0, 129, 0.05); } /* Aangepast aan paarse kleur */
+.user-table .status-used { color: var(--clr-danger); font-weight: bold; }
+.user-table .status-unused { color: var(--clr-success); font-weight: bold; }
+
+.actions-cell {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+/* 2.6 Flash & Status Berichten */
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+.flashes li {
+    padding: 15px;
+    margin: 0 auto 10px auto;
+    max-width: var(--container-width);
+    border-radius: var(--border-radius);
+    color: var(--clr-white);
+    background-color: var(--clr-primary);
+}
+.flashes li.error { background-color: var(--clr-danger); }
+.flashes li.success { background-color: var(--clr-success); }
+
+.status-box {
+    padding: 15px 20px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: bold;
+    margin: 10px 0;
+    border: 1px solid transparent;
+}
+.status-box.status-paid {
+    background-color: #e9f7ef; 
+    color: #1d643b; 
+    border-color: #a7d7be;
+}
+.status-box.status-pending {
+    background-color: #fff8e1; 
+    color: #947600; 
+    border-color: #ffe58f;
+}
+.status-box.status-info {
+    background-color: #f0f0f0; 
+    color: var(--clr-text-subtle);
+    border-color: var(--clr-border);
+}
+
+/* 2.7 Modal (Pop-up) */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 2000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.6);
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: var(--border-radius);
+    position: relative;
+}
+.close-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.info-box {
+    background: #e9ecef;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.info-box strong {
+    font-weight: 700;
+}
+.info-box.payment-code {
+    font-family: monospace;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--clr-primary);
+}
+.copy-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+
+/* ================================================================
+    3. PAGINA-SPECIFIEKE STIJLEN
+================================================================ */
+.admin-panel-container, .activity-detail-card {
+    background-color: var(--clr-white);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px var(--clr-shadow);
+    padding: 40px;
+    margin-top: 30px;
+}
+
+.admin-actions-top, .admin-actions-bottom {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.signup-list {
+    list-style: none;
+    padding: 0;
+    display: flex;          /* Veranderd van grid naar flex */
+    flex-direction: column; /* Dwingt de elementen onder elkaar */
+    gap: 10px;              /* Bepaalt de verticale ruimte tussen de deelnemers */
+}
+.signup-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--clr-white);
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--clr-border);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.signup-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px var(--clr-shadow);
+}
+.participant-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.signup-item .signup-name {
+    font-weight: bold;
+    color: var(--clr-text);
+}
+.signup-item .icon {
+    font-size: 1.5em;
+    color: var(--clr-primary);
+}
+
+.admin-payment-status {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-end;   
+    gap: 10px;               
+    margin-left: auto;      
+}
+
+.inline-form { 
+    display: inline-block; 
+    margin: 0; 
+}
+
+/* --- Tags op detailpagina --- */
+.activity-tags-container {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center;
+    gap: 12px;
+    margin-top: -10px;
+    margin-bottom: 40px;
+}
+.activity-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--clr-bg-subtle);
+    padding: 8px 16px;
+    border-radius: 20px; 
+    font-size: 0.9rem;
+    color: var(--clr-text-subtle);
+    border: 1px solid var(--clr-border);
+    font-weight: 500;
+}
+.activity-tag .icon {
+    font-size: 1.3em;
+    color: var(--clr-primary);
+}
+.activity-tag strong {
+    color: var(--clr-text);
+    font-weight: 700;
+}
+
+
+/* ================================================================
+    4. RESPONSIVITEIT (DEFINITIEVE VERSIE)
+================================================================ */
+@media (max-width: 768px) {
+    body { font-size: 15px; }
+
+    /* --- Hoofdmenu structuur --- */
+    .navbar-toggler { display: block; }
+
+    .navbar-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--clr-white); /* Was --clr-primary, nu wit */
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 0;
+        box-shadow: 0 8px 10px rgba(0,0,0,0.2);
+        border-top: 1px solid var(--clr-border);
+    }
+    .navbar-menu.is-active { display: flex; }
+    
+    /* --- Logo op mobiel --- */
+    .logo-desktop {
+        display: none; 
+    }
+    .logo-mobile {
+        display: block; 
+        height: 45px; 
+    }
+
+    /* --- Links in mobiel menu --- */
+    .navbar-menu .nav-item,
+    .navbar-menu .dropdown-content a {
+        display: block;
+        padding: 12px 30px;
+        color: var(--clr-text); /* Was wit, nu donker */
+        text-decoration: none;
+        width: 100%;
+        background-color: transparent;
+    }
+    .navbar-menu .nav-item:hover,
+    .navbar-menu .dropdown-content a:hover,
+    .navbar-menu .nav-item:focus,
+    .navbar-menu .dropdown-content a:focus {
+        background-color: var(--clr-bg-subtle);
+        color: var(--clr-primary);
+    }
+
+    /* --- Dropdown Specifiek --- */
+    .navbar-menu .dropdown-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar-menu .dropdown-content {
+        display: none;
+        padding: 0;
+        position: static;
+        box-shadow: none;
+        border: none;
+        background-color: transparent; 
+    }
+    .navbar-menu .dropdown-content.is-open { display: block; }
+    
+    .navbar-menu .dropdown-content a {
+        padding-left: 50px; 
+    }
+}
+
+/* In style.css, find .signup-item and modify it as follows: */
+.signup-item {
+    display: flex;
+    justify-content: space-between; /* Keeps participant info left, everything else right */
+    align-items: center;
+    background-color: var(--clr-white);
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--clr-border);
+    transition: transform 0.2s, box-shadow 0.2s;
+    gap: 20px; /* NEW: Add a gap to space out the main elements within signup-item */
+}
+
+/* In style.css, find .admin-payment-status and modify it as follows: */
+.admin-payment-status {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-end;   
+    gap: 10px;               
+    /* Removed margin-left: auto; */ /* REMOVE THIS LINE */
+    margin-left: auto; /* Keep this if you want it to push strongly to the right when no delete button exists or for general alignment */
+}
+
+/* Add a specific rule if needed for spacing between payment status and delete button
+   This ensures spacing works well if both are present.
+   This can be placed near .inline-form or .actions-cell
+*/
+.signup-item > .inline-form { /* Target the delete form directly within signup-item */
+    margin-left: 20px; /* Adds space specifically before the delete button */
+    flex-shrink: 0; /* Prevents button from shrinking */
+}
+
+/* Original .inline-form style */
+.inline-form { 
+    display: inline-block; 
+    margin: 0; 
+}

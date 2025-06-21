@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Gebruikersbeheer{% endblock %}
+
+{% block content %}
+    <div class="admin-panel-container">
+        <h1 class="page-title">Gebruikersbeheer</h1>
+        <p class="admin-intro">Beheer hier alle geregistreerde accounts. Wees voorzichtig met verwijderen.</p>
+
+        {% if users %}
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Gebruikersnaam</th>
+                        <th>E-mailadres</th>
+                        <th>Acties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td class="actions-cell">
+                            {% if user.username != session.username %}
+                            
+                            <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="btn-action edit-btn">Bewerk</a>
+
+                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je {{ user.username }} wilt verwijderen? Dit kan niet ongedaan worden gemaakt.');" class="inline-form">
+                                <button type="submit" class="btn-action delete-btn">Verwijder</button>
+                            </form>
+                            {% else %}
+                                <span class="current-admin-text">Jij bent hier de admin</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-users">Geen gebruikers gevonden.</p>
+        {% endif %}
+    </div>
+{% endblock %}
