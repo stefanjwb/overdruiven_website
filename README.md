@@ -36,7 +36,7 @@ Deze Flask-webapplicatie maakt het mogelijk om:
 
 3. Installeer dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 4. Voeg een `.env` bestand toe met je configuratie:
@@ -55,7 +55,7 @@ Deze Flask-webapplicatie maakt het mogelijk om:
 
 5. Start de app:
    ```bash
-   phyton3 app.py
+   flask run
    ```
 
 ---
