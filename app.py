@@ -27,6 +27,8 @@ app.config['BANK_ACCOUNT_NAME'] = os.getenv('BANK_ACCOUNT_NAME')
 
 app.config['ADMIN_EMAIL'] = os.getenv('ADMIN_EMAIL')
 
+app.config['SERVER_NAME'] = os.getenv('SERVER_NAME')
+
 app.config['MAIL_SERVER'] = 'smtp.gmail.com' 
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True

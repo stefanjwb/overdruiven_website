@@ -6,7 +6,11 @@ services:
     ports:
       - "8000:5000"
     volumes:
-      - .:/app
+      - .:/app 
       - ./instance:/app/instance
+      # --- VOEG DEZE REGEL TOE ---
+      - ./credentials:/app/credentials 
     env_file:
       - .env
+    command: gunicorn --bind 0.0.0.0:5000 wsgi:app
+    restart: unless-stopped
