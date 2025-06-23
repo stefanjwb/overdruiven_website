@@ -2,25 +2,11 @@ version: '3.8'
 
 services:
   web:
-    # Bouw de image op basis van de Dockerfile in de huidige map
     build: .
-    
-    # Geef de container een herkenbare naam
-    container_name: wijnclub
-    
-    # Zorg dat de container automatisch herstart
-    restart: always
-    
-    # Laad de geheime sleutels uit het .env bestand
+    ports:
+      - "8000:5000"
+    volumes:
+      - .:/app
+      - ./instance:/app/instance
     env_file:
       - .env
-      
-    # Koppel de poorten
-    # Verkeer op de standaard web-poort 80 van de server gaat naar poort 5000 in de container
-    ports:
-      - "80:5000"
-      
-    # Koppel alleen het databasebestand als een volume
-    # Dit zorgt ervoor dat je data bewaard blijft, zelfs als je de container verwijdert
-    volumes:
-      - ./instance:/app/instance
