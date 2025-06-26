@@ -232,7 +232,8 @@ label {
     font-size: 0.95rem;
 }
 
-input[type="text"], input[type="password"], input[type="email"], input[type="date"], input[type="time"], input[type="number"], textarea {
+/* --- HIER IS DE WIJZIGING --- */
+input[type="text"], input[type="password"], input[type="email"], input[type="date"], input[type="time"], input[type="number"], textarea, select {
     width: 100%;
     padding: 14px;
     border: 1px solid var(--clr-border);
@@ -242,7 +243,7 @@ input[type="text"], input[type="password"], input[type="email"], input[type="dat
     transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
-input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="number"]:focus, textarea:focus {
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
     border-color: var(--clr-primary);
     box-shadow: 0 0 0 3px rgba(113, 0, 129, 0.15); /* Aangepast aan nieuwe paarse kleur */
     outline: none;

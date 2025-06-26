@@ -3,23 +3,26 @@
 {% block title %}Genereer Uitnodigingscode{% endblock %}
 
 {% block content %}
-<div class="admin-panel-container">
-    <h1 class="page-title">Genereer Nieuwe Uitnodigingscode</h1>
-    <form action="{{ url_for('generate_code_web') }}" method="POST" class="activity-form" style="max-width: 500px; margin-top: 20px;">
-        
-        <div class="form-group">
-            <label for="role">Selecteer de rol voor de nieuwe gebruiker:</label>
-            <select name="role" id="role" class="form-control" required>
-                <option value="user">User (Standaard lid)</option>
-                <option value="organizer">Organizer (Mag activiteiten aanmaken/bewerken)</option>
-                <option value="admin">Admin (Volledige beheerrechten)</option>
-            </select>
-        </div>
+    <div class="form-container">
+        <h1 class="page-title">Nieuwe Uitnodigingscode</h1>
+        <p style="text-align: center; margin-top: -20px; margin-bottom: 30px;">Genereer een unieke code waarmee een nieuwe gebruiker zich kan registreren.</p>
 
-        <button type="submit" class="submit-btn">Genereer Code</button>
-    </form>
-    <p class="back-link-container" style="margin-top: 20px;">
-        <a href="{{ url_for('admin_invite_codes') }}" class="back-link">&larr; Terug naar overzicht codes</a>
-    </p>
-</div>
+        <form method="POST" class="activity-form"> 
+            
+            <div class="form-group">
+                <label for="role">Selecteer de rol voor deze code:</label>
+                <select name="role" id="role" required>
+                    <option value="user">User (Standaard lid)</option>
+                    <option value="organizer">Organizer (Mag activiteiten aanmaken/bewerken)</option>
+                    <option value="admin">Admin (Volledige beheerrechten)</option>
+                </select>
+                <small style="display: block; margin-top: 8px; color: #6c757d;">De gebruiker die zich met deze code registreert, krijgt de hierboven geselecteerde rol.</small>
+            </div>
+            
+            <button type="submit" class="submit-btn" style="margin-top: 20px;">Code Genereren</button>
+        </form>
+        <p class="back-link-container">
+            <a href="{{ url_for('admin_invite_codes') }}" class="back-link">&larr; Terug naar overzicht</a>
+        </p>
+    </div>
 {% endblock %}
