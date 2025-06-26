@@ -593,9 +593,10 @@ def admin_users():
 @admin_required
 def admin_delete_user(user_id):
     user_to_delete = User.query.get_or_404(user_id)
-    if user_to_delete.username == session.get('username'):
-        flash('Je kunt je eigen admin-account niet verwijderen.', 'danger')
+    if user_to_delete.username == 'admin':
+        flash('Het hoofd-admin account kan niet worden verwijderd.', 'danger')
         return redirect(url_for('admin_users'))
+    
     db.session.delete(user_to_delete)
     db.session.commit()
     flash(f'Gebruiker "{user_to_delete.username}" succesvol verwijderd.', 'success')
@@ -610,6 +611,7 @@ def admin_edit_user(user_id):
         # Haal data uit het formulier
         new_email = request.form.get('email')
         new_password = request.form.get('password')
+        new_role = request.form.get('role') # Nieuwe regel
 
         # Controleer of de nieuwe email uniek is (als deze is gewijzigd)
         if new_email != user_to_edit.email:
@@ -618,6 +620,13 @@ def admin_edit_user(user_id):
                 flash('Dit e-mailadres is al in gebruik door een andere gebruiker.', 'danger')
                 return render_template('edit_user.html', user=user_to_edit)
             user_to_edit.email = new_email
+
+        # Update de rol, maar sta niet toe dat de hoofd-admin zijn eigen rol verlaagt
+        if new_role and (user_to_edit.username != 'admin' or new_role == 'admin'):
+            user_to_edit.role = new_role
+        elif new_role and user_to_edit.username == 'admin' and new_role != 'admin':
+            flash('De rol van de hoofd-admin kan niet worden gewijzigd.', 'warning')
+
 
         # Controleer of er een nieuw wachtwoord is ingevuld
         if new_password:
