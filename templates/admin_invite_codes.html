@@ -1,55 +1,57 @@
 {% extends 'base.html' %}
 
-{% block title %}Uitnodigingscodes Beheren{% endblock %}
+{% block title %}Uitnodigingscodes Beheer{% endblock %}
 
 {% block content %}
-    <div class="admin-panel-container"> {# Hergebruik admin-panel styling #}
-        <h1 class="page-title">Uitnodigingscodes Beheren</h1>
-        <p class="admin-intro">Hier zie je alle gegenereerde uitnodigingscodes en hun status.</p>
-
-        <div class="admin-actions-top"> {# Knoppen boven de tabel #}
-            <a href="{{ url_for('generate_code_web') }}" class="button-link">Genereer Nieuwe Code</a>
-        </div>
-
-        {% if codes %}
-            <table class="user-table"> {# Hergebruik user-table styling #}
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Status</th>
-                        <th>Gebruikt door (ID)</th>
-                        <th>Aangemaakt op</th>
-                        <th>Acties</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for code in codes %}
-                    <tr>
-                        <td class="code-value">{{ code.code }}</td>
-                        <td>
-                            {% if code.is_used %}
-                                <span class="status-used">Gebruikt</span>
-                            {% else %}
-                                <span class="status-unused">Ongebruikt</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ code.used_by_user_id or 'N.v.t.' }}</td>
-                        <td>{{ code.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
-                        <td>
-                            <form action="{{ url_for('delete_invite_code', code_id=code.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je deze code wilt verwijderen?');" class="inline-form">
-                                <button type="submit" class="btn-action delete-btn">Verwijder</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p class="no-items">Nog geen uitnodigingscodes gegenereerd.</p>
-        {% endif %}
-        
-        <div class="admin-actions-bottom">
-            <a href="{{ url_for('admin_users') }}" class="button-link">Terug naar Gebruikersbeheer</a>
-        </div>
+<div class="admin-panel-container">
+    <h1 class="page-title">Uitnodigingscodes Beheer</h1>
+    <div class="admin-actions">
+        <a href="{{ url_for('generate_code_web') }}" class="submit-btn">Genereer Nieuwe Code</a>
     </div>
+
+    {% if codes %}
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Rol</th>
+                    <th>Status</th>
+                    <th>Gebruikt door</th>
+                    <th>Aangemaakt op</th>
+                    <th>Acties</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for code in codes %}
+                <tr>
+                    <td><code>{{ code.code }}</code></td>
+                    <td>{{ code.role | capitalize }}</td>
+                    <td>
+                        {% if code.is_used %}
+                            <span style="color: #999;">Gebruikt</span>
+                        {% else %}
+                            <span style="color: green; font-weight: bold;">Actief</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if code.used_by_user_id %}
+                            Gebruiker ID: {{ code.used_by_user_id }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ code.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+                    <td class="actions-cell">
+                        <form action="{{ url_for('delete_invite_code', code_id=code.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je deze code wilt verwijderen?');" class="inline-form">
+                            <button type="submit" class="btn-action delete-btn">Verwijder</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-items">Geen uitnodigingscodes gevonden.</p>
+    {% endif %}
+</div>
 {% endblock %}
