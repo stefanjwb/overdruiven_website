@@ -180,10 +180,8 @@ def admin_required(f):
 # --- Routes (Website URLs) ---
 @app.route('/')
 def public_home():
-    # Haalt alleen activiteiten op die als publiek zijn gemarkeerd
-    public_activities = Activity.query.filter_by(is_public=True).order_by(Activity.date).all()
-    
-    # Verwijst naar een nieuwe template die je hebt gemaakt (of nog moet maken)
+    today = datetime.date.today()
+    public_activities = Activity.query.filter(Activity.is_public == True, Activity.date >= today).order_by(Activity.date).all()
     return render_template('public_home.html', activities=public_activities)
 
 @app.route('/agenda')
@@ -195,7 +193,8 @@ def agenda():
 @app.route('/activiteiten')
 @login_required
 def activiteiten():
-    activities = Activity.query.order_by(Activity.date).all()
+    today = datetime.date.today()
+    activities = Activity.query.filter(Activity.date >= today).order_by(Activity.date).all()
     return render_template('index.html', activities=activities)
 
 
