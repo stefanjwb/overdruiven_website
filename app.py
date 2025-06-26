@@ -414,10 +414,7 @@ def admin_activities():
 
 # --- app.py ---
 
-# NOTE: The approve_signup route from the original code seems to be for an 'is_approved' flag on Signup,
-#       but your Payment model handles the approval status. I will assume the request refers to payment approval.
-#       If you also need a separate "signup approval" email for free activities (without payment),
-#       please clarify and I can add that.
+
 @app.route('/approve_payment/<int:payment_id>', methods=['POST'])
 @admin_required
 def approve_payment(payment_id):
@@ -484,6 +481,11 @@ def reject_payment(payment_id):
     try:
         if user_to_notify.email:
             subject = f"Status van je betaling voor '{activity.name}'"
+            
+            # --- HIER ZIT DE CORRECTIE ---
+            # De kosten worden nu correct geformatteerd met f-string syntax
+            kosten_str = f"€{activity.cost:.2f}" if activity.cost else "Gratis"
+
             body = f"""
 Beste {user_to_notify.username},
 
@@ -495,12 +497,12 @@ Controleer alsjeblieft je betalingsgegevens en probeer het opnieuw via de activi
 
 Activiteit: {activity.name}
 Datum: {activity.date.strftime('%d-%m-%Y')}
-Kosten: €{"%.2f"|format(activity.cost)}
+Kosten: {kosten_str}
 
 Onze excuses voor het ongemak.
 
 Met vriendelijke groet,
-Het team van Chateau Overdruiven
+Het bestuur van Chateau Overdruiven
 """
             msg = Message(subject, recipients=[user_to_notify.email], body=body)
             mail.send(msg)
@@ -670,64 +672,7 @@ def delete_invite_code(code_id):
     flash(f"Uitnodigingscode succesvol verwijderd.", 'success')
     return redirect(url_for('admin_invite_codes'))
 
-# The original `approve_signup` route which seems to have been removed or commented out.
-# I will use the `approve_payment` and `reject_payment` routes for email notifications.
-# @app.route('/approve_signup/<int:signup_id>', methods=['POST'])
-# @admin_required
-# def approve_signup(signup_id):
-#     signup = Signup.query.get_or_404(signup_id)
-#     activity = signup.activity
-#     
-#     if activity.max_participants is not None:
-#         if activity.approved_signups_count >= activity.max_participants:
-#             flash(f'Kan aanmelding niet goedkeuren, activiteit "{activity.name}" is al vol.', 'warning')
-#             return redirect(url_for('view_activity', activity_id=activity.id))
-#
-#     signup.is_approved = True
-#     db.session.commit()
-#     
-#     try:
-#         # Zoek de gebruiker die bij deze aanmelding hoort
-#         user_to_notify = User.query.filter_by(username=signup.participant_name).first()
-#         
-#         if user_to_notify and user_to_notify.email:
-#             subject = f"Je aanmelding voor '{activity.name}' is goedgekeurd!"
-#             
-#             # Stel de body van de e-mail samen
-#             body = f"""
-# Beste {user_to_notify.username},
-#
-# Goed nieuws! Je aanmelding voor de volgende activiteit is betaald en goedgekeurd:
-#
-# Activiteit: {activity.name}
-# Datum: {activity.date.strftime('%d-%m-%Y')}
-# """
-#             # Voeg optionele details toe als ze bestaan
-#             if activity.start_time:
-#                 body += f"Tijd: {activity.start_time}\n"
-#             if activity.location:
-#                 body += f"Locatie: {activity.location}\n"
-#
-#             body += """
-# We zien je daar!
-#
-# Met vriendelijke groet,
-# Bestuur van Chateau Overdruiven
-# """
-#             # Maak en verstuur de e-mail
-#             msg = Message(subject, recipients=[user_to_notify.email], body=body)
-#             mail.send(msg)
-#             
-#             flash(f'Aanmelding van {signup.participant_name} goedgekeurd en een bevestigingsmail is verstuurd!', 'success')
-#         else:
-#             flash(f'Aanmelding van {signup.participant_name} goedgekeurd, maar er kon geen e-mail worden verstuurd (gebruiker niet gevonden).', 'warning')
-#
-#     except Exception as e:
-#         # Vang mogelijke fouten tijdens het mailen af
-#         print(f"Fout bij het versturen van de e-mail: {e}")
-#         flash(f'Aanmelding van {signup.participant_name} goedgekeurd, maar de bevestigingsmail kon niet worden verstuurd.', 'danger')
-#         
-#     return redirect(url_for('view_activity', activity_id=signup.activity_id))
+
 
 # In app.py
 @app.route('/contact', methods=['POST'])
