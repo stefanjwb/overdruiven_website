@@ -397,6 +397,16 @@ def delete_signup(signup_id):
     flash(f'Aanmelding van {participant_name} verwijderd!', 'success')
     return redirect(url_for('view_activity', activity_id=activity_id))
 
+@app.route('/admin/activities')
+@admin_required
+def admin_activities():
+    """Toont een overzicht van alle activiteiten, inclusief die in het verleden."""
+    # Voeg 'today' toe voor gebruik in de template
+    today = datetime.date.today() 
+    activities = Activity.query.order_by(Activity.date.desc()).all()
+    # Geef 'today' mee aan de render_template functie
+    return render_template('admin_activities.html', activities=activities, today=today)
+
 # --- app.py ---
 
 # NOTE: The approve_signup route from the original code seems to be for an 'is_approved' flag on Signup,
