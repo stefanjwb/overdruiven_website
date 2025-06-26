@@ -134,7 +134,10 @@ def inject_is_admin():
     return dict(is_admin=is_admin)
 
 def is_admin():
-    return session.get('logged_in') and session.get('username') == 'admin'
+    if not session.get('logged_in'):
+        return False
+    # Een gebruiker is admin als de username 'admin' is OF als de rol 'admin' is.
+    return session.get('username') == 'admin' or session.get('role') == 'admin'
 
 # In app.py (bij de andere helper functions)
 

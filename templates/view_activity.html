@@ -68,7 +68,7 @@
                     {% if is_admin() %}
                         {% if activity.cost and activity.cost > 0 %}
                             {% set payment = payments_by_user.get(signup.user.id) %}
-                            <div class="admin-payment-status"> {# This div will now only contain payment-related elements #}
+                            <div class="admin-payment-status">
                                 {% if payment and payment.status == 'paid' %}
                                     <span style="color: green; font-weight: bold;">✓ Betaald</span>
                                 {% elif payment and payment.status == 'pending_verification' %}
@@ -90,7 +90,6 @@
                                 {% endif %}
                             </div>
                         {% endif %}
-                        {# The delete form is now a direct child of .signup-item, allowing flexbox to space it #}
                         <form action="{{ url_for('delete_signup', signup_id=signup.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je {{ signup.participant_name }} wilt verwijderen van deze activiteit?');" class="inline-form">
                             <button type="submit" class="btn-action delete-btn">Verwijder</button>
                         </form>
@@ -125,8 +124,9 @@
                     {% else %}
                         <p class="status-box status-info">Je bent aangemeld voor deze gratis activiteit.</p>
                     {% endif %}
-                    {% else %}
-                    {% if not is_admin() %}
+                {% else %}
+                    {# --- HIER IS DE WIJZIGING --- #}
+                    {% if session.username != 'admin' %}
                         {% set is_full = activity.max_participants is not none and signups|length >= activity.max_participants %}
                         {% if is_full %}
                             <p class="not-logged-in-message">Deze activiteit is helaas vol.</p>
@@ -140,7 +140,7 @@
                             {% endif %}
                         {% endif %}
                     {% else %}
-                        <p class="already-signed-up-message">De admin beheert activiteiten en kan zich niet aanmelden.</p>
+                        <p class="already-signed-up-message">De hoofd-admin kan zich niet aanmelden voor activiteiten.</p>
                     {% endif %}
                 {% endif %}
             {% else %}
@@ -163,7 +163,8 @@
         {% endif %}
         <a href="{{ url_for('activiteiten') }}" class="back-link">&larr; Terug naar overzicht</a>
     </div>
-</div> {% if activity.cost and activity.cost > 0 %}
+</div> 
+{% if activity.cost and activity.cost > 0 %}
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <span class="close-btn">&times;</span>
