@@ -182,10 +182,8 @@ def admin_required(f):
 # --- Routes (Website URLs) ---
 @app.route('/')
 def public_home():
-    # Haalt alleen activiteiten op die als publiek zijn gemarkeerd
-    public_activities = Activity.query.filter_by(is_public=True).order_by(Activity.date).all()
-    
-    # Verwijst naar een nieuwe template die je hebt gemaakt (of nog moet maken)
+    today = datetime.date.today()
+    public_activities = Activity.query.filter(Activity.is_public == True, Activity.date >= today).order_by(Activity.date).all()
     return render_template('public_home.html', activities=public_activities)
 
 @app.route('/agenda')
@@ -197,7 +195,8 @@ def agenda():
 @app.route('/activiteiten')
 @login_required
 def activiteiten():
-    activities = Activity.query.order_by(Activity.date).all()
+    today = datetime.date.today()
+    activities = Activity.query.filter(Activity.date >= today).order_by(Activity.date).all()
     return render_template('index.html', activities=activities)
 
 
@@ -399,6 +398,16 @@ def delete_signup(signup_id):
     db.session.commit()
     flash(f'Aanmelding van {participant_name} verwijderd!', 'success')
     return redirect(url_for('view_activity', activity_id=activity_id))
+
+@app.route('/admin/activities')
+@admin_required
+def admin_activities():
+    """Toont een overzicht van alle activiteiten, inclusief die in het verleden."""
+    # Voeg 'today' toe voor gebruik in de template
+    today = datetime.date.today() 
+    activities = Activity.query.order_by(Activity.date.desc()).all()
+    # Geef 'today' mee aan de render_template functie
+    return render_template('admin_activities.html', activities=activities, today=today)
 
 # --- app.py ---
 

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Activiteitenbeheer{% endblock %}
+
+{% block content %}
+    <div class="admin-panel-container">
+        <h1 class="page-title">Activiteitenbeheer</h1>
+        <p class="admin-intro">Hier zie je een overzicht van alle activiteiten, inclusief die in het verleden.</p>
+
+        {% if activities %}
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Naam</th>
+                        <th>Datum</th>
+                        <th>Aanmeldingen</th>
+                        <th>Acties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in activities %}
+                    <tr {% if activity.date < today %}style="opacity: 0.6;"{% endif %}>
+                        <td>{{ activity.id }}</td>
+                        <td>{{ activity.name }}</td>
+                        <td>{{ activity.date.strftime('%d-%m-%Y') }}</td>
+                        <td>
+                            {{ activity.signups_count }}
+                            {% if activity.max_participants %}
+                                / {{ activity.max_participants }}
+                            {% endif %}
+                        </td>
+                        <td class="actions-cell">
+                            <a href="{{ url_for('view_activity', activity_id=activity.id) }}" class="btn-action edit-btn" style="background-color: #007bff;">Bekijk</a>
+                            <a href="{{ url_for('edit_activity', activity_id=activity.id) }}" class="btn-action edit-btn">Bewerk</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-items">Geen activiteiten gevonden.</p>
+        {% endif %}
+    </div>
+{% endblock %}
