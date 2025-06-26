@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Bewerk Activiteit{% endblock %}
+
+{% block content %}
+    <div class="activity-form-container">
+        <h1>Bewerk Activiteit: {{ activity.name }}</h1>
+        <form method="POST" class="activity-form">
+            <div class="form-group">
+                <label for="name">Naam Activiteit:</label>
+                <input type="text" id="name" name="name" value="{{ activity.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Beschrijving:</label>
+                <textarea id="description" name="description" rows="5">{{ activity.description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Datum:</label>
+                <input type="date" id="date" name="date" value="{{ activity.date.strftime('%Y-%m-%d') }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="start_time">Begintijd (optioneel):</label>
+                <input type="time" id="start_time" name="start_time" value="{{ activity.start_time or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="end_time">Eindtijd (optioneel):</label>
+                <input type="time" id="end_time" name="end_time" value="{{ activity.end_time or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="max_participants">Max. aantal deelnemers (leeg voor geen limiet):</label>
+                <input type="number" id="max_participants" name="max_participants" value="{{ activity.max_participants or '' }}" min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="cost">Kosten p.p. (leeg voor gratis)</label>
+                <input type="number" id="cost" name="cost" value="{{ activity.cost or '' }}" min="0" step="0.01" class="form-control" placeholder="bv. 15.50">
+            </div>
+
+            <div class="form-group">
+                <label for="location">Locatie:</label>
+                <input type="text" id="location" name="location" value="{{ activity.location or '' }}">
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="is_public" name="is_public" value="true" {% if activity.is_public %}checked{% endif %} style="width: auto;">
+                <label for="is_public" style="margin-bottom: 0;">Deze activiteit is openbaar zichtbaar</label>
+            </div>
+            <button type="submit" class="submit-btn">Wijzigingen Opslaan</button>
+        </form>
+        <p class="back-link-container">
+            <a href="{{ url_for('view_activity', activity_id=activity.id) }}" class="back-link">&larr; Terug naar activiteit</a>
+        </p>
+    </div>
+{% endblock %}

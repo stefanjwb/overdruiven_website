@@ -337,6 +337,56 @@ def delete_activity(activity_id):
     flash('Activiteit succesvol verwijderd!', 'success')
     return redirect(url_for('activiteiten'))
 
+@app.route('/edit_activity/<int:activity_id>', methods=['GET', 'POST'])
+@login_required
+@organizer_required
+def edit_activity(activity_id):
+    activity = Activity.query.get_or_404(activity_id)
+
+    if request.method == 'POST':
+        # Haal gegevens uit het formulier
+        activity.name = request.form['name']
+        activity.description = request.form['description']
+        date_str = request.form['date']
+        activity.date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+        activity.start_time = request.form['start_time']
+        activity.end_time = request.form['end_time']
+        activity.location = request.form['location']
+        max_participants_str = request.form.get('max_participants')
+        activity.max_participants = int(max_participants_str) if max_participants_str else None
+        activity.is_public = request.form.get('is_public') == 'true'
+        cost_str = request.form.get('cost')
+        activity.cost = float(cost_str) if cost_str else None
+
+        # Update Google Calendar Event
+        if activity.google_event_id:
+            try:
+                service = get_calendar_service()
+                event = service.events().get(calendarId=CALENDAR_ID, eventId=activity.google_event_id).execute()
+
+                event['summary'] = activity.name
+                event['description'] = activity.description
+                event['location'] = activity.location
+                
+                if activity.start_time and activity.end_time:
+                    event['start']['dateTime'] = f"{date_str}T{activity.start_time}:00"
+                    event['end']['dateTime'] = f"{date_str}T{activity.end_time}:00"
+                else:
+                    event['start']['date'] = date_str
+                    event['end']['date'] = date_str
+
+                service.events().update(calendarId=CALENDAR_ID, eventId=activity.google_event_id, body=event).execute()
+                flash('Google Agenda-evenement succesvol bijgewerkt!', 'info')
+            except Exception as e:
+                flash(f"Fout bij bijwerken van Google Agenda: {e}", 'warning')
+        
+        db.session.commit()
+        flash('Activiteit succesvol bijgewerkt!', 'success')
+        return redirect(url_for('view_activity', activity_id=activity.id))
+
+    # GET request: toon het formulier met de huidige data
+    return render_template('edit_activity.html', activity=activity)
+
 @app.route('/delete_signup/<int:signup_id>', methods=['POST'])
 @admin_required
 def delete_signup(signup_id):

@@ -153,8 +153,11 @@
     <hr class="section-divider">
 
     <div class="activity-actions">
+        {% if is_organizer() %}
+        <a href="{{ url_for('edit_activity', activity_id=activity.id) }}" class="btn-action edit-btn" style="text-decoration: none; margin-right: 10px;">Bewerk activiteit</a>
+        {% endif %}
         {% if is_admin() %}
-        <form action="{{ url_for('delete_activity', activity_id=activity.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je deze activiteit wilt verwijderen? Alle aanmeldingen gaan ook verloren.');" class="delete-activity-form">
+        <form action="{{ url_for('delete_activity', activity_id=activity.id) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je deze activiteit wilt verwijderen? Alle aanmeldingen gaan ook verloren.');" class="inline-form">
             <button type="submit" class="btn-action delete-btn">Verwijder activiteit</button>
         </form>
         {% endif %}
@@ -188,8 +191,12 @@
         <p>Gebruik de volgende korte, unieke omschrijving (zeer belangrijk!):</p>
 
         <div class="info-box payment-code copy-container">
+            {% if user %}
             <span id="payment-code-text">{{ 'ACT{}-{}-{}'.format(activity.id, user.id, activity.date.strftime('%d%m')) }}</span>
             <button class="copy-btn" data-copy-target="#payment-code-text">Kopieer</button>
+            {% else %}
+            <span>Log in om de betaalcode te zien.</span>
+            {% endif %}
         </div>
         <hr>
         <form action="{{ url_for('confirm_payment', activity_id=activity.id) }}" method="POST" style="margin-top: 20px;">
