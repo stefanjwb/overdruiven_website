@@ -4,19 +4,25 @@
 
 {% block content %}
     <div class="form-container">
-        <h1 class="page-title">Nieuwe Uitnodigingscode Genereren</h1>
+        <h1 class="page-title">Nieuwe Uitnodigingscode</h1>
+        <p style="text-align: center; margin-top: -20px; margin-bottom: 30px;">Genereer een unieke code waarmee een nieuwe gebruiker zich kan registreren.</p>
+
         <form method="POST" class="activity-form"> 
             
             <div class="form-group">
-                <label for="role">Selecteer een rol voor deze code:</label>
-                <select name="role" id="role" class="form-control" style="padding: 14px; width: 100%; border-radius: 8px; border: 1px solid var(--clr-border);">
-                    <option value="user">Standaard Gebruiker</option>
-                    <option value="organizer">Organisator (mag activiteiten aanmaken)</option>
+                <label for="role">Selecteer de rol voor deze code:</label>
+                <select name="role" id="role" required>
+                    <option value="user">User (Standaard lid)</option>
+                    <option value="organizer">Organizer (Mag activiteiten aanmaken/bewerken)</option>
+                    <option value="admin">Admin (Volledige beheerrechten)</option>
                 </select>
+                <small style="display: block; margin-top: 8px; color: #6c757d;">De gebruiker die zich met deze code registreert, krijgt de hierboven geselecteerde rol.</small>
             </div>
-            <p>Klik op de knop om een unieke uitnodigingscode aan te maken met de geselecteerde rol.</p>
-            <button type="submit" class="submit-btn">Code Genereren</button>
+            
+            <button type="submit" class="submit-btn" style="margin-top: 20px;">Code Genereren</button>
         </form>
-        <p class="back-link-container"><a href="{{ url_for('admin_invite_codes') }}" class="back-link">&larr; Terug naar Uitnodigingscodes</a></p>
+        <p class="back-link-container">
+            <a href="{{ url_for('admin_invite_codes') }}" class="back-link">&larr; Terug naar overzicht</a>
+        </p>
     </div>
 {% endblock %}

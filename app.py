@@ -136,7 +136,10 @@ def inject_is_admin():
     return dict(is_admin=is_admin)
 
 def is_admin():
-    return session.get('logged_in') and session.get('username') == 'admin'
+    if not session.get('logged_in'):
+        return False
+    # Een gebruiker is admin als de username 'admin' is OF als de rol 'admin' is.
+    return session.get('username') == 'admin' or session.get('role') == 'admin'
 
 # In app.py (bij de andere helper functions)
 
@@ -544,6 +547,7 @@ def register():
     if 'logged_in' in session and session['logged_in']:
         flash('Je bent al ingelogd. Log uit om een nieuw account te registreren.', 'info')
         return redirect(url_for('activiteiten'))
+        
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
@@ -565,9 +569,12 @@ def register():
             flash('Ongeldige of reeds gebruikte uitnodigingscode.', 'danger')
             return render_template('register.html', username=username, email=email)
             
+        # GEWIJZIGD: Ken de rol toe die in de uitnodigingscode staat
         new_user = User(username=username, email=email, role=invite_code.role) 
         new_user.set_password(password)
         db.session.add(new_user)
+        # We moeten de user eerst een ID geven, dus we flushen de sessie
+        db.session.flush()
         
         invite_code.is_used = True
         invite_code.used_by_user_id = new_user.id
