@@ -54,9 +54,9 @@ Deze Flask-webapplicatie maakt het mogelijk om:
    ```
 
 5. Start de app:
-   ```bash
-   flask run
-   ```
+
+   docker-compose up --build
+
 
 ---
 
