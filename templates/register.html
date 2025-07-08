@@ -3,30 +3,44 @@
 {% block title %}Registreren{% endblock %}
 
 {% block content %}
-    <div class="registration-container"> {# Nieuwe container voor het registratieformulier #}
+    <div class="registration-container">
         <h1 class="page-title">Registreer een nieuw account</h1>
-        <form method="POST" class="registration-form"> {# Class toegevoegd aan het formulier #}
+        
+        <form method="POST" action="" novalidate class="registration-form">
+            {{ form.hidden_tag() }} {# CSRF TOKEN #}
+
             <div class="form-group">
-                <label for="username">Gebruikersnaam:</label>
-                <input type="text" id="username" name="username" value="{{ username or '' }}" required>
+                {{ form.username.label }}
+                {{ form.username(class_="form-control") }} {# Rendert het input veld #}
+                {% for error in form.username.errors %}<span style="color:red;">{{ error }}</span>{% endfor %}
             </div>
 
             <div class="form-group">
-                <label for="email">E-mailadres:</label>
-                <input type="email" id="email" name="email" value="{{ email or '' }}" required>
+                {{ form.email.label }}
+                {{ form.email(class_="form-control") }}
+                {% for error in form.email.errors %}<span style="color:red;">{{ error }}</span>{% endfor %}
             </div>
 
             <div class="form-group">
-                <label for="password">Wachtwoord:</label>
-                <input type="password" id="password" name="password" required>
+                {{ form.password.label }}
+                {{ form.password(class_="form-control") }}
+                {% for error in form.password.errors %}<span style="color:red;">{{ error }}</span>{% endfor %}
+            </div>
+            
+            {# NIEUW VELD VOOR WACHTWOORD BEVESTIGING #}
+            <div class="form-group">
+                {{ form.confirm_password.label }}
+                {{ form.confirm_password(class_="form-control") }}
+                {% for error in form.confirm_password.errors %}<span style="color:red;">{{ error }}</span>{% endfor %}
             </div>
 
             <div class="form-group">
-                <label for="invite_code">Uitnodigingscode:</label>
-                <input type="text" id="invite_code" name="invite_code" required>
+                {{ form.invite_code.label }}
+                {{ form.invite_code(class_="form-control") }}
+                {% for error in form.invite_code.errors %}<span style="color:red;">{{ error }}</span>{% endfor %}
             </div>
 
-            <button type="submit" class="submit-btn">Account aanmaken</button>
+            {{ form.submit(class_="submit-btn") }}
         </form>
         <p class="login-prompt">Heb je al een account? <a href="{{ url_for('login') }}">Log hier in</a></p>
     </div>

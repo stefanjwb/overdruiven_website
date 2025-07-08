@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from flask_migrate import Migrate
 import datetime
 import os
@@ -9,6 +10,7 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 import click
+import re
 
 # Google API imports
 from google.oauth2 import service_account
@@ -524,7 +526,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
         if user and user.check_password(password):
             session['logged_in'] = True
             session['username'] = username
@@ -555,8 +557,14 @@ def register():
         email = request.form['email']
         password = request.form['password']
         invite_code_str = request.form['invite_code'].strip()
+
+        if len(password) < 8 or not re.search(r"\d", password) or not re.search(r"[A-Z]", password):
+            flash('Het wachtwoord moet minimaal 8 tekens lang zijn en een cijfer en een hoofdletter bevatten.', 'danger')
+            return render_template('register.html', username=username, email=email)
+
+        invite_code_str = request.form['invite_code'].strip()
         
-        existing_user = User.query.filter_by(username=username).first()
+        existing_user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
         if existing_user:
             flash('Deze gebruikersnaam is al bezet. Kies een andere.', 'danger')
             return render_template('register.html', username=username, email=email)
@@ -634,6 +642,11 @@ def admin_edit_user(user_id):
 
         # Controleer of er een nieuw wachtwoord is ingevuld
         if new_password:
+    # Wachtwoord validatie
+            if len(new_password) < 8 or not re.search(r"\d", new_password) or not re.search(r"[A-Z]", new_password):
+                flash('Het wachtwoord moet minimaal 8 tekens lang zijn en een cijfer en een hoofdletter bevatten.', 'danger')
+                return render_template('edit_user.html', user=user_to_edit) # Render de pagina opnieuw met de foutmelding
+
             user_to_edit.set_password(new_password)
             flash('Wachtwoord succesvol gewijzigd.', 'info')
 
