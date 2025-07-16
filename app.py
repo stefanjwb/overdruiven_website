@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from flask_migrate import Migrate
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
 import datetime
 import os
 from flask_mail import Mail, Message
@@ -11,6 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 import click
 import re
+
 
 # Google API imports
 from google.oauth2 import service_account
@@ -129,6 +133,22 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f'<Payment {self.id} - Status: {self.status}>'
+    
+class RegistrationForm(FlaskForm):
+    username = StringField('Gebruikersnaam', validators=[DataRequired()])
+    email = StringField('E-mail', validators=[DataRequired(), Email()])
+    password = PasswordField('Wachtwoord', validators=[
+        DataRequired(),
+        Length(min=8, message='Het wachtwoord moet minimaal 8 tekens lang zijn.'),
+        Regexp(r'.*[A-Z].*', message='Het wachtwoord moet een hoofdletter bevatten.'),
+        Regexp(r'.*\d.*', message='Het wachtwoord moet een cijfer bevatten.')
+    ])
+    confirm_password = PasswordField('Bevestig Wachtwoord', validators=[
+        DataRequired(),
+        EqualTo('password', message='Wachtwoorden moeten overeenkomen.')
+    ])
+    invite_code = StringField('Uitnodigingscode', validators=[DataRequired()])
+    submit = SubmitField('Registreer')
 
 # --- Helper Functions and Decorators ---
 
@@ -523,18 +543,23 @@ Het bestuur van Chateau Overdruiven
 def login():
     if 'logged_in' in session and session['logged_in']:
         return redirect(url_for('activiteiten'))
+        
     if request.method == 'POST':
-        username = request.form['username']
+        username_input = request.form['username']
         password = request.form['password']
-        user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
+        
+        user = User.query.filter(func.lower(User.username) == func.lower(username_input)).first()
+        
         if user and user.check_password(password):
             session['logged_in'] = True
-            session['username'] = username
+            session['username'] = user.username 
             session['role'] = user.role
+            
             flash('Succesvol ingelogd!', 'success')
             return redirect(url_for('activiteiten'))
         else:
             flash('Ongeldige gebruikersnaam of wachtwoord', 'danger')
+            
     return render_template('login.html')
 
 @app.route('/logout')
@@ -548,42 +573,36 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if 'logged_in' in session and session['logged_in']:
+    if session.get('logged_in'):
         flash('Je bent al ingelogd. Log uit om een nieuw account te registreren.', 'info')
         return redirect(url_for('activiteiten'))
-        
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        invite_code_str = request.form['invite_code'].strip()
+    
+    form = RegistrationForm() # Create an instance of the form
 
-        if len(password) < 8 or not re.search(r"\d", password) or not re.search(r"[A-Z]", password):
-            flash('Het wachtwoord moet minimaal 8 tekens lang zijn en een cijfer en een hoofdletter bevatten.', 'danger')
-            return render_template('register.html', username=username, email=email)
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
+        invite_code_str = form.invite_code.data.strip()
 
-        invite_code_str = request.form['invite_code'].strip()
-        
         existing_user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
         if existing_user:
             flash('Deze gebruikersnaam is al bezet. Kies een andere.', 'danger')
-            return render_template('register.html', username=username, email=email)
+            return redirect(url_for('register'))
             
         existing_email = User.query.filter_by(email=email).first()
         if existing_email:
             flash('Dit e-mailadres is al in gebruik. Kies een andere.', 'danger')
-            return render_template('register.html', username=username, email=email)
+            return redirect(url_for('register'))
             
         invite_code = InvitationCode.query.filter_by(code=invite_code_str).first()
         if not invite_code or invite_code.is_used:
             flash('Ongeldige of reeds gebruikte uitnodigingscode.', 'danger')
-            return render_template('register.html', username=username, email=email)
+            return redirect(url_for('register'))
             
-        # GEWIJZIGD: Ken de rol toe die in de uitnodigingscode staat
         new_user = User(username=username, email=email, role=invite_code.role) 
         new_user.set_password(password)
         db.session.add(new_user)
-        # We moeten de user eerst een ID geven, dus we flushen de sessie
         db.session.flush()
         
         invite_code.is_used = True
@@ -593,7 +612,8 @@ def register():
         flash('Registratie succesvol! Je kunt nu inloggen.', 'success')
         return redirect(url_for('login'))
         
-    return render_template('register.html')
+    # Pass the form to the template for both GET and failed POST requests
+    return render_template('register.html', form=form)
 
 @app.route('/admin/users')
 @admin_required
