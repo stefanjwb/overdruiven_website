@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import func, or_, MetaData
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
@@ -42,7 +42,16 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = ('Chateau Overdruiven', os.getenv('MAIL_USERNAME'))
 
-db = SQLAlchemy(app)
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
+metadata = MetaData(naming_convention=convention)
+db = SQLAlchemy(app, metadata=metadata)
 mail = Mail(app)
 migrate = Migrate(app, db)
 
@@ -77,6 +86,8 @@ class Activity(db.Model):
     google_event_id = db.Column(db.String(255), nullable=True, unique=True)
     is_public = db.Column(db.Boolean, nullable=False, server_default='0')
     cost = db.Column(db.Float, nullable=True) 
+    organizer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    organizer = db.relationship('User', foreign_keys=[organizer_id])
     signups = db.relationship('Signup', backref='activity', lazy=True, cascade="all, delete-orphan")
 
     @property
@@ -229,6 +240,7 @@ def activiteiten():
 @login_required
 @organizer_required
 def add_activity():
+    organizers = User.query.filter(or_(User.role == 'organizer', User.role == 'admin')).all()
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
@@ -240,6 +252,7 @@ def add_activity():
         is_public = request.form.get('is_public') == 'true'
         cost_str = request.form.get('cost')
         cost = float(cost_str) if cost_str else None
+        organizer_id = request.form.get('organizer_id')
         
         max_participants = int(max_participants_str) if max_participants_str else None
         date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -253,7 +266,8 @@ def add_activity():
             location=location,
             max_participants=max_participants,
             is_public=is_public,
-            cost=cost
+            cost=cost,
+            organizer_id=organizer_id
         )
         try:
             service = get_calendar_service()
@@ -283,7 +297,7 @@ def add_activity():
         db.session.commit()
         flash('Activiteit succesvol toegevoegd!', 'success') # Changed message
         return redirect(url_for('activiteiten'))
-    return render_template('add_activity.html')
+    return render_template('add_activity.html', organizers=organizers)
 
 @app.route('/activity/<int:activity_id>')
 def view_activity(activity_id):
@@ -368,6 +382,7 @@ def delete_activity(activity_id):
 @organizer_required
 def edit_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
+    organizers = User.query.filter(or_(User.role == 'organizer', User.role == 'admin')).all()
 
     if request.method == 'POST':
         # Haal gegevens uit het formulier
@@ -383,6 +398,7 @@ def edit_activity(activity_id):
         activity.is_public = request.form.get('is_public') == 'true'
         cost_str = request.form.get('cost')
         activity.cost = float(cost_str) if cost_str else None
+        activity.organizer_id = request.form.get('organizer_id')
 
         # Update Google Calendar Event
         if activity.google_event_id:
@@ -411,7 +427,7 @@ def edit_activity(activity_id):
         return redirect(url_for('view_activity', activity_id=activity.id))
 
     # GET request: toon het formulier met de huidige data
-    return render_template('edit_activity.html', activity=activity)
+    return render_template('edit_activity.html', activity=activity, organizers=organizers)
 
 @app.route('/delete_signup/<int:signup_id>', methods=['POST'])
 @admin_required
@@ -554,6 +570,7 @@ def login():
             session['logged_in'] = True
             session['username'] = user.username 
             session['role'] = user.role
+            session['user_id'] = user.id
             
             flash('Succesvol ingelogd!', 'success')
             return redirect(url_for('activiteiten'))
@@ -568,6 +585,7 @@ def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
     session.pop('role', None)
+    session.pop('user_id', None)
     flash('Succesvol uitgelogd!', 'success')
     return redirect(url_for('public_home'))
 

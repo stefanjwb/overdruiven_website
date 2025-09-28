@@ -26,6 +26,13 @@
             <span>Locatie: <strong>{{ activity.location }}</strong></span>
         </div>
         {% endif %}
+
+        {% if activity.organizer %}
+        <div class="activity-tag">
+            <span class="icon">&#128100;</span>
+            <span>Organisator: <strong>{{ activity.organizer.username }}</strong></span>
+        </div>
+        {% endif %}
     
         <div class="activity-tag">
             <span class="icon">&#128182;</span>
