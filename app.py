@@ -656,12 +656,30 @@ def admin_delete_user(user_id):
 @admin_required
 def admin_edit_user(user_id):
     user_to_edit = User.query.get_or_404(user_id)
+    original_username = user_to_edit.username
 
     if request.method == 'POST':
         # Haal data uit het formulier
+        new_username = request.form.get('username')
         new_email = request.form.get('email')
         new_password = request.form.get('password')
-        new_role = request.form.get('role') # Nieuwe regel
+        new_role = request.form.get('role')
+
+        # Check if username is being changed and if it's unique
+        if new_username != original_username:
+            if user_to_edit.username == 'admin':
+                flash('De gebruikersnaam van de hoofd-admin kan niet worden gewijzigd.', 'danger')
+                return render_template('edit_user.html', user=user_to_edit)
+            
+            existing_user = User.query.filter(func.lower(User.username) == func.lower(new_username)).first()
+            if existing_user:
+                flash('Deze gebruikersnaam is al in gebruik.', 'danger')
+                return render_template('edit_user.html', user=user_to_edit)
+            
+            # Update signups with the new username
+            Signup.query.filter_by(participant_name=original_username).update({'participant_name': new_username})
+            user_to_edit.username = new_username
+
 
         # Controleer of de nieuwe email uniek is (als deze is gewijzigd)
         if new_email != user_to_edit.email:
@@ -674,7 +692,7 @@ def admin_edit_user(user_id):
         # Update de rol, maar sta niet toe dat de hoofd-admin zijn eigen rol verlaagt
         if new_role and (user_to_edit.username != 'admin' or new_role == 'admin'):
             user_to_edit.role = new_role
-        elif new_role and user_to_edit.username == 'admin' and new_role != 'admin':
+        elif new_role and original_username == 'admin' and new_role != 'admin':
             flash('De rol van de hoofd-admin kan niet worden gewijzigd.', 'warning')
 
 
