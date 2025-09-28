@@ -178,12 +178,10 @@ a:hover {
     background-color: #c82333;
 }
 
-/* Add this new rule to your style.css, perhaps near .inline-form */
 .delete-btn-spacing {
-    margin-left: 20px; /* Adjust this value as needed for desired spacing */
+    margin-left: 20px;
 }
 
-/* Ensure .inline-form still maintains its necessary properties */
 .inline-form { 
     display: inline-block; 
     margin: 0; 
@@ -232,8 +230,8 @@ label {
     font-size: 0.95rem;
 }
 
-/* --- HIER IS DE WIJZIGING --- */
-input[type="text"], input[type="password"], input[type="email"], input[type="date"], input[type="time"], input[type="number"], textarea, select {
+/* --- CORRECTIE VOOR FORMULIERVELDEN --- */
+input[type="text"], input[type="password"], input[type="email"], input[type="date"], input[type="time"], input[type="number"], textarea, select, .form-control {
     width: 100%;
     padding: 14px;
     border: 1px solid var(--clr-border);
@@ -241,13 +239,25 @@ input[type="text"], input[type="password"], input[type="email"], input[type="dat
     font-size: 1rem;
     font-family: var(--font-family);
     transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+    background-color: var(--clr-white);
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235a5a5a%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 0.65em auto;
 }
 
 input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
     border-color: var(--clr-primary);
-    box-shadow: 0 0 0 3px rgba(113, 0, 129, 0.15); /* Aangepast aan nieuwe paarse kleur */
+    box-shadow: 0 0 0 3px rgba(113, 0, 129, 0.15);
     outline: none;
 }
+/* --- EINDE CORRECTIE --- */
 
 .readonly-input {
     background-color: #e9ecef;
@@ -268,7 +278,7 @@ textarea {
 /* 2.3 Navigatiebalk (Navbar) */
 .navbar {
     background-color: var(--clr-white);
-    padding: 10px 30px; /* Iets minder verticale padding */
+    padding: 10px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -279,12 +289,11 @@ textarea {
 }
 
 .navbar-menu {
-    display: flex;         /* Zorgt voor een horizontale layout */
-    align-items: center;   /* Lijnt de items verticaal in het midden uit */
-    gap: 20px;             /* Ruimte tussen de menu-items */
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-/* --- Drie-koloms layout voor de navbar --- */
 .navbar-left, .navbar-right {
     flex: 1; 
     display: flex;
@@ -297,7 +306,6 @@ textarea {
     flex-shrink: 0;
 }
 
-/* --- Logo styling --- */
 .navbar-logo {
     width: auto;
     display: block;
@@ -309,7 +317,6 @@ textarea {
     display: none;
 }
 
-/* --- Navigatie-items & Dropdowns --- */
 .nav-item {
     color: var(--clr-text);
     font-weight: bold;
@@ -355,7 +362,6 @@ textarea {
     display: block;
 }
 
-/* --- Mobiele navigatie-knop --- */
 .navbar-toggler {
     display: none;
     font-size: 1.8rem;
@@ -384,7 +390,7 @@ textarea {
 }
 .activity-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(113, 0, 129, 0.12); /* Aangepast aan paarse kleur */
+    box-shadow: 0 10px 30px rgba(113, 0, 129, 0.12);
 }
 
 .activity-card-content { padding: 30px; flex-grow: 1; }
@@ -439,7 +445,7 @@ textarea {
     vertical-align: middle;
 }
 .user-table th { background-color: var(--clr-bg-subtle); }
-.user-table tbody tr:hover { background-color: rgba(113, 0, 129, 0.05); } /* Aangepast aan paarse kleur */
+.user-table tbody tr:hover { background-color: rgba(113, 0, 129, 0.05); }
 .user-table .status-used { color: var(--clr-danger); font-weight: bold; }
 .user-table .status-unused { color: var(--clr-success); font-weight: bold; }
 
@@ -572,9 +578,9 @@ textarea {
 .signup-list {
     list-style: none;
     padding: 0;
-    display: flex;          /* Veranderd van grid naar flex */
-    flex-direction: column; /* Dwingt de elementen onder elkaar */
-    gap: 10px;              /* Bepaalt de verticale ruimte tussen de deelnemers */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .signup-item {
     display: flex;
@@ -585,6 +591,7 @@ textarea {
     border-radius: var(--border-radius);
     border: 1px solid var(--clr-border);
     transition: transform 0.2s, box-shadow 0.2s;
+    gap: 20px;
 }
 .signup-item:hover {
     transform: translateY(-3px);
@@ -609,12 +616,12 @@ textarea {
     flex-direction: column; 
     align-items: flex-end;   
     gap: 10px;               
-    margin-left: auto;      
+    margin-left: auto;
 }
 
-.inline-form { 
-    display: inline-block; 
-    margin: 0; 
+.signup-item > .inline-form {
+    margin-left: 20px;
+    flex-shrink: 0;
 }
 
 /* --- Tags op detailpagina --- */
@@ -654,7 +661,6 @@ textarea {
 @media (max-width: 768px) {
     body { font-size: 15px; }
 
-    /* --- Hoofdmenu structuur --- */
     .navbar-toggler { display: block; }
 
     .navbar-menu {
@@ -663,7 +669,7 @@ textarea {
         top: 100%;
         left: 0;
         width: 100%;
-        background-color: var(--clr-white); /* Was --clr-primary, nu wit */
+        background-color: var(--clr-white);
         flex-direction: column;
         align-items: stretch;
         padding: 10px 0;
@@ -672,7 +678,6 @@ textarea {
     }
     .navbar-menu.is-active { display: flex; }
     
-    /* --- Logo op mobiel --- */
     .logo-desktop {
         display: none; 
     }
@@ -681,12 +686,11 @@ textarea {
         height: 45px; 
     }
 
-    /* --- Links in mobiel menu --- */
     .navbar-menu .nav-item,
     .navbar-menu .dropdown-content a {
         display: block;
         padding: 12px 30px;
-        color: var(--clr-text); /* Was wit, nu donker */
+        color: var(--clr-text);
         text-decoration: none;
         width: 100%;
         background-color: transparent;
@@ -699,7 +703,6 @@ textarea {
         color: var(--clr-primary);
     }
 
-    /* --- Dropdown Specifiek --- */
     .navbar-menu .dropdown-btn {
         display: flex;
         justify-content: space-between;
@@ -720,61 +723,21 @@ textarea {
     }
 }
 
-/* In style.css, find .signup-item and modify it as follows: */
-.signup-item {
-    display: flex;
-    justify-content: space-between; /* Keeps participant info left, everything else right */
-    align-items: center;
-    background-color: var(--clr-white);
-    padding: 12px 20px;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--clr-border);
-    transition: transform 0.2s, box-shadow 0.2s;
-    gap: 20px; /* NEW: Add a gap to space out the main elements within signup-item */
-}
-
-/* In style.css, find .admin-payment-status and modify it as follows: */
-.admin-payment-status {
-    display: flex;
-    flex-direction: column; 
-    align-items: flex-end;   
-    gap: 10px;               
-    /* Removed margin-left: auto; */ /* REMOVE THIS LINE */
-    margin-left: auto; /* Keep this if you want it to push strongly to the right when no delete button exists or for general alignment */
-}
-
-/* Add a specific rule if needed for spacing between payment status and delete button
-   This ensures spacing works well if both are present.
-   This can be placed near .inline-form or .actions-cell
-*/
-.signup-item > .inline-form { /* Target the delete form directly within signup-item */
-    margin-left: 20px; /* Adds space specifically before the delete button */
-    flex-shrink: 0; /* Prevents button from shrinking */
-}
-
-/* Original .inline-form style */
-.inline-form { 
-    display: inline-block; 
-    margin: 0; 
-}
-
 /* ================================================================
     5. STIJLEN VOOR DE AGENDA PAGINA
 ================================================================ */
 
-/* De hoofdcontainer voor de pagina, vergelijkbaar met .activity-detail-card */
 .activiteiten-container {
     background-color: var(--clr-white);
     border-radius: 12px;
     box-shadow: 0 6px 20px var(--clr-shadow);
     padding: 40px;
     margin-top: 30px;
-    max-width: 900px; /* Iets breder voor de agenda */
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
 }
 
-/* De ingesloten Google Agenda responsive maken */
 .activiteiten-container iframe {
     width: 100%;
     height: 600px;
@@ -782,7 +745,6 @@ textarea {
     border-radius: var(--border-radius);
 }
 
-/* Titels en lijsten voor de instructies */
 .activiteiten-container h2 {
     margin-top: 40px;
     text-align: center;
@@ -795,7 +757,7 @@ textarea {
 }
 
 .activiteiten-container ol {
-    padding-left: 20px; /* Standaard browser-inspringing resetten */
+    padding-left: 20px;
     margin-top: 15px;
 }
 
@@ -805,7 +767,6 @@ textarea {
     color: var(--clr-text-subtle);
 }
 
-/* De code-blokken met de ICS-link stylen */
 .activiteiten-container code {
     display: block;
     background: #e9ecef;
@@ -815,5 +776,5 @@ textarea {
     font-family: monospace;
     color: var(--clr-primary);
     font-weight: bold;
-    word-break: break-all; /* Zorgt dat lange links afbreken */
+    word-break: break-all;
 }

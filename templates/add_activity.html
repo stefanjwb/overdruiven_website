@@ -46,6 +46,15 @@
                 <input type="text" id="location" name="location">
             </div>
 
+            <div class="form-group">
+                <label for="organizer_id">Organisator:</label>
+                <select id="organizer_id" name="organizer_id" class="form-control" required>
+                    {% for organizer in organizers %}
+                        <option value="{{ organizer.id }}" {% if session.user_id == organizer.id %}selected{% endif %}>{{ organizer.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                 <input type="checkbox" id="is_public" name="is_public" value="true" style="width: auto;">
                 <label for="is_public" style="margin-bottom: 0;">Deze activiteit is openbaar zichtbaar op de homepagina</label>

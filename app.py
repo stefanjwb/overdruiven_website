@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func, or_, MetaData
 from flask_migrate import Migrate
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
 import datetime
 import os
 from flask_mail import Mail, Message
@@ -9,6 +13,8 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 import click
+import re
+
 
 # Google API imports
 from google.oauth2 import service_account
@@ -27,6 +33,8 @@ app.config['BANK_ACCOUNT_NAME'] = os.getenv('BANK_ACCOUNT_NAME')
 
 app.config['ADMIN_EMAIL'] = os.getenv('ADMIN_EMAIL')
 
+app.config['SERVER_NAME'] = os.getenv('SERVER_NAME')
+
 app.config['MAIL_SERVER'] = 'smtp.gmail.com' 
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -34,7 +42,16 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = ('Chateau Overdruiven', os.getenv('MAIL_USERNAME'))
 
-db = SQLAlchemy(app)
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
+metadata = MetaData(naming_convention=convention)
+db = SQLAlchemy(app, metadata=metadata)
 mail = Mail(app)
 migrate = Migrate(app, db)
 
@@ -69,6 +86,8 @@ class Activity(db.Model):
     google_event_id = db.Column(db.String(255), nullable=True, unique=True)
     is_public = db.Column(db.Boolean, nullable=False, server_default='0')
     cost = db.Column(db.Float, nullable=True) 
+    organizer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    organizer = db.relationship('User', foreign_keys=[organizer_id])
     signups = db.relationship('Signup', backref='activity', lazy=True, cascade="all, delete-orphan")
 
     @property
@@ -125,6 +144,22 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f'<Payment {self.id} - Status: {self.status}>'
+    
+class RegistrationForm(FlaskForm):
+    username = StringField('Gebruikersnaam', validators=[DataRequired()])
+    email = StringField('E-mail', validators=[DataRequired(), Email()])
+    password = PasswordField('Wachtwoord', validators=[
+        DataRequired(),
+        Length(min=8, message='Het wachtwoord moet minimaal 8 tekens lang zijn.'),
+        Regexp(r'.*[A-Z].*', message='Het wachtwoord moet een hoofdletter bevatten.'),
+        Regexp(r'.*\d.*', message='Het wachtwoord moet een cijfer bevatten.')
+    ])
+    confirm_password = PasswordField('Bevestig Wachtwoord', validators=[
+        DataRequired(),
+        EqualTo('password', message='Wachtwoorden moeten overeenkomen.')
+    ])
+    invite_code = StringField('Uitnodigingscode', validators=[DataRequired()])
+    submit = SubmitField('Registreer')
 
 # --- Helper Functions and Decorators ---
 
@@ -205,6 +240,7 @@ def activiteiten():
 @login_required
 @organizer_required
 def add_activity():
+    organizers = User.query.filter(or_(User.role == 'organizer', User.role == 'admin')).all()
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
@@ -216,6 +252,7 @@ def add_activity():
         is_public = request.form.get('is_public') == 'true'
         cost_str = request.form.get('cost')
         cost = float(cost_str) if cost_str else None
+        organizer_id = request.form.get('organizer_id')
         
         max_participants = int(max_participants_str) if max_participants_str else None
         date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -229,7 +266,8 @@ def add_activity():
             location=location,
             max_participants=max_participants,
             is_public=is_public,
-            cost=cost
+            cost=cost,
+            organizer_id=organizer_id
         )
         try:
             service = get_calendar_service()
@@ -259,7 +297,7 @@ def add_activity():
         db.session.commit()
         flash('Activiteit succesvol toegevoegd!', 'success') # Changed message
         return redirect(url_for('activiteiten'))
-    return render_template('add_activity.html')
+    return render_template('add_activity.html', organizers=organizers)
 
 @app.route('/activity/<int:activity_id>')
 def view_activity(activity_id):
@@ -344,6 +382,7 @@ def delete_activity(activity_id):
 @organizer_required
 def edit_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
+    organizers = User.query.filter(or_(User.role == 'organizer', User.role == 'admin')).all()
 
     if request.method == 'POST':
         # Haal gegevens uit het formulier
@@ -359,6 +398,7 @@ def edit_activity(activity_id):
         activity.is_public = request.form.get('is_public') == 'true'
         cost_str = request.form.get('cost')
         activity.cost = float(cost_str) if cost_str else None
+        activity.organizer_id = request.form.get('organizer_id')
 
         # Update Google Calendar Event
         if activity.google_event_id:
@@ -387,7 +427,7 @@ def edit_activity(activity_id):
         return redirect(url_for('view_activity', activity_id=activity.id))
 
     # GET request: toon het formulier met de huidige data
-    return render_template('edit_activity.html', activity=activity)
+    return render_template('edit_activity.html', activity=activity, organizers=organizers)
 
 @app.route('/delete_signup/<int:signup_id>', methods=['POST'])
 @admin_required
@@ -412,10 +452,7 @@ def admin_activities():
 
 # --- app.py ---
 
-# NOTE: The approve_signup route from the original code seems to be for an 'is_approved' flag on Signup,
-#       but your Payment model handles the approval status. I will assume the request refers to payment approval.
-#       If you also need a separate "signup approval" email for free activities (without payment),
-#       please clarify and I can add that.
+
 @app.route('/approve_payment/<int:payment_id>', methods=['POST'])
 @admin_required
 def approve_payment(payment_id):
@@ -482,6 +519,11 @@ def reject_payment(payment_id):
     try:
         if user_to_notify.email:
             subject = f"Status van je betaling voor '{activity.name}'"
+            
+            # --- HIER ZIT DE CORRECTIE ---
+            # De kosten worden nu correct geformatteerd met f-string syntax
+            kosten_str = f"€{activity.cost:.2f}" if activity.cost else "Gratis"
+
             body = f"""
 Beste {user_to_notify.username},
 
@@ -493,12 +535,12 @@ Controleer alsjeblieft je betalingsgegevens en probeer het opnieuw via de activi
 
 Activiteit: {activity.name}
 Datum: {activity.date.strftime('%d-%m-%Y')}
-Kosten: €{"%.2f"|format(activity.cost)}
+Kosten: {kosten_str}
 
 Onze excuses voor het ongemak.
 
 Met vriendelijke groet,
-Het team van Chateau Overdruiven
+Het bestuur van Chateau Overdruiven
 """
             msg = Message(subject, recipients=[user_to_notify.email], body=body)
             mail.send(msg)
@@ -517,18 +559,24 @@ Het team van Chateau Overdruiven
 def login():
     if 'logged_in' in session and session['logged_in']:
         return redirect(url_for('activiteiten'))
+        
     if request.method == 'POST':
-        username = request.form['username']
+        username_input = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        
+        user = User.query.filter(func.lower(User.username) == func.lower(username_input)).first()
+        
         if user and user.check_password(password):
             session['logged_in'] = True
-            session['username'] = username
+            session['username'] = user.username 
             session['role'] = user.role
+            session['user_id'] = user.id
+            
             flash('Succesvol ingelogd!', 'success')
             return redirect(url_for('activiteiten'))
         else:
             flash('Ongeldige gebruikersnaam of wachtwoord', 'danger')
+            
     return render_template('login.html')
 
 @app.route('/logout')
@@ -537,41 +585,42 @@ def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
     session.pop('role', None)
+    session.pop('user_id', None)
     flash('Succesvol uitgelogd!', 'success')
     return redirect(url_for('public_home'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if 'logged_in' in session and session['logged_in']:
+    if session.get('logged_in'):
         flash('Je bent al ingelogd. Log uit om een nieuw account te registreren.', 'info')
         return redirect(url_for('activiteiten'))
-        
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        invite_code_str = request.form['invite_code'].strip()
-        
-        existing_user = User.query.filter_by(username=username).first()
+    
+    form = RegistrationForm() # Create an instance of the form
+
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
+        invite_code_str = form.invite_code.data.strip()
+
+        existing_user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
         if existing_user:
             flash('Deze gebruikersnaam is al bezet. Kies een andere.', 'danger')
-            return render_template('register.html', username=username, email=email)
+            return redirect(url_for('register'))
             
         existing_email = User.query.filter_by(email=email).first()
         if existing_email:
             flash('Dit e-mailadres is al in gebruik. Kies een andere.', 'danger')
-            return render_template('register.html', username=username, email=email)
+            return redirect(url_for('register'))
             
         invite_code = InvitationCode.query.filter_by(code=invite_code_str).first()
         if not invite_code or invite_code.is_used:
             flash('Ongeldige of reeds gebruikte uitnodigingscode.', 'danger')
-            return render_template('register.html', username=username, email=email)
+            return redirect(url_for('register'))
             
-        # GEWIJZIGD: Ken de rol toe die in de uitnodigingscode staat
         new_user = User(username=username, email=email, role=invite_code.role) 
         new_user.set_password(password)
         db.session.add(new_user)
-        # We moeten de user eerst een ID geven, dus we flushen de sessie
         db.session.flush()
         
         invite_code.is_used = True
@@ -581,7 +630,8 @@ def register():
         flash('Registratie succesvol! Je kunt nu inloggen.', 'success')
         return redirect(url_for('login'))
         
-    return render_template('register.html')
+    # Pass the form to the template for both GET and failed POST requests
+    return render_template('register.html', form=form)
 
 @app.route('/admin/users')
 @admin_required
@@ -630,6 +680,11 @@ def admin_edit_user(user_id):
 
         # Controleer of er een nieuw wachtwoord is ingevuld
         if new_password:
+    # Wachtwoord validatie
+            if len(new_password) < 8 or not re.search(r"\d", new_password) or not re.search(r"[A-Z]", new_password):
+                flash('Het wachtwoord moet minimaal 8 tekens lang zijn en een cijfer en een hoofdletter bevatten.', 'danger')
+                return render_template('edit_user.html', user=user_to_edit) # Render de pagina opnieuw met de foutmelding
+
             user_to_edit.set_password(new_password)
             flash('Wachtwoord succesvol gewijzigd.', 'info')
 
@@ -668,64 +723,7 @@ def delete_invite_code(code_id):
     flash(f"Uitnodigingscode succesvol verwijderd.", 'success')
     return redirect(url_for('admin_invite_codes'))
 
-# The original `approve_signup` route which seems to have been removed or commented out.
-# I will use the `approve_payment` and `reject_payment` routes for email notifications.
-# @app.route('/approve_signup/<int:signup_id>', methods=['POST'])
-# @admin_required
-# def approve_signup(signup_id):
-#     signup = Signup.query.get_or_404(signup_id)
-#     activity = signup.activity
-#     
-#     if activity.max_participants is not None:
-#         if activity.approved_signups_count >= activity.max_participants:
-#             flash(f'Kan aanmelding niet goedkeuren, activiteit "{activity.name}" is al vol.', 'warning')
-#             return redirect(url_for('view_activity', activity_id=activity.id))
-#
-#     signup.is_approved = True
-#     db.session.commit()
-#     
-#     try:
-#         # Zoek de gebruiker die bij deze aanmelding hoort
-#         user_to_notify = User.query.filter_by(username=signup.participant_name).first()
-#         
-#         if user_to_notify and user_to_notify.email:
-#             subject = f"Je aanmelding voor '{activity.name}' is goedgekeurd!"
-#             
-#             # Stel de body van de e-mail samen
-#             body = f"""
-# Beste {user_to_notify.username},
-#
-# Goed nieuws! Je aanmelding voor de volgende activiteit is betaald en goedgekeurd:
-#
-# Activiteit: {activity.name}
-# Datum: {activity.date.strftime('%d-%m-%Y')}
-# """
-#             # Voeg optionele details toe als ze bestaan
-#             if activity.start_time:
-#                 body += f"Tijd: {activity.start_time}\n"
-#             if activity.location:
-#                 body += f"Locatie: {activity.location}\n"
-#
-#             body += """
-# We zien je daar!
-#
-# Met vriendelijke groet,
-# Bestuur van Chateau Overdruiven
-# """
-#             # Maak en verstuur de e-mail
-#             msg = Message(subject, recipients=[user_to_notify.email], body=body)
-#             mail.send(msg)
-#             
-#             flash(f'Aanmelding van {signup.participant_name} goedgekeurd en een bevestigingsmail is verstuurd!', 'success')
-#         else:
-#             flash(f'Aanmelding van {signup.participant_name} goedgekeurd, maar er kon geen e-mail worden verstuurd (gebruiker niet gevonden).', 'warning')
-#
-#     except Exception as e:
-#         # Vang mogelijke fouten tijdens het mailen af
-#         print(f"Fout bij het versturen van de e-mail: {e}")
-#         flash(f'Aanmelding van {signup.participant_name} goedgekeurd, maar de bevestigingsmail kon niet worden verstuurd.', 'danger')
-#         
-#     return redirect(url_for('view_activity', activity_id=signup.activity_id))
+
 
 # In app.py
 @app.route('/contact', methods=['POST'])
